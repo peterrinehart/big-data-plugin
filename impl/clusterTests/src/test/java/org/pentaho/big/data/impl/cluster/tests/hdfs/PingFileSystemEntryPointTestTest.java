@@ -2,7 +2,7 @@
  *
  * Pentaho Big Data
  *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -31,7 +31,6 @@ import org.pentaho.runtime.test.i18n.MessageGetterFactory;
 import org.pentaho.runtime.test.network.ConnectivityTest;
 import org.pentaho.runtime.test.network.ConnectivityTestFactory;
 import org.pentaho.runtime.test.result.RuntimeTestEntrySeverity;
-import org.pentaho.runtime.test.result.RuntimeTestResult;
 import org.pentaho.runtime.test.result.RuntimeTestResultEntry;
 import org.pentaho.runtime.test.result.RuntimeTestResultSummary;
 

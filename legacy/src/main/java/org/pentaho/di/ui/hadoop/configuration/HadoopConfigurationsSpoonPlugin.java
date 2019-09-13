@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Pentaho Big Data
  * <p/>
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  * <p/>
  * ******************************************************************************
  * <p/>
@@ -20,12 +20,8 @@
 
 package org.pentaho.di.ui.hadoop.configuration;
 
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.hadoop.HadoopConfigurationInfo;
-import org.pentaho.di.core.hadoop.HadoopConfigurationPrompter;
 import org.pentaho.di.core.logging.LogChannel;
 import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.di.ui.spoon.SpoonLifecycleListener;
 import org.pentaho.di.ui.spoon.SpoonPerspective;
 import org.pentaho.di.ui.spoon.SpoonPlugin;
@@ -35,9 +31,7 @@ import org.pentaho.di.ui.spoon.XulSpoonResourceBundle;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
 
-import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by bryan on 8/10/15.

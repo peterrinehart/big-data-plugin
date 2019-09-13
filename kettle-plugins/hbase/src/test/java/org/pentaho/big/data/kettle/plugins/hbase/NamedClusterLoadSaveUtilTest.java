@@ -31,8 +31,15 @@ import org.pentaho.di.repository.ObjectId;
 import org.pentaho.di.repository.Repository;
 import org.pentaho.metastore.api.IMetaStore;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.never;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -225,3 +232,4 @@ public class NamedClusterLoadSaveUtilTest {
     verify( repository ).saveStepAttribute( eq( transId ), eq( stepId ), eq( CLUSTER_NAME_KEY ), eq( SOME_CLUSTER_NAME ) );
   }
 }
+

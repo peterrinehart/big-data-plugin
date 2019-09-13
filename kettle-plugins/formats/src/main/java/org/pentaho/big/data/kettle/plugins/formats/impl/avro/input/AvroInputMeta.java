@@ -2,7 +2,7 @@
  *
  * Pentaho Data Integration
  *
- * Copyright (C) 2018-2019 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2019-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -38,9 +38,9 @@ import org.pentaho.di.trans.step.StepMeta;
 
 //keep ID as new because we will have old step with ID AvroInput
 @Step( id = "AvroInputNew", image = "AI.svg", name = "AvroInput.Name", description = "AvroInput.Description",
-    categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.BigData",
-    documentationUrl = "Products/Avro_Input",
-    i18nPackageName = "org.pentaho.di.trans.steps.avro" )
+  categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.BigData",
+  documentationUrl = "Products/Avro_Input",
+  i18nPackageName = "org.pentaho.di.trans.steps.avro" )
 @InjectionSupported( localizationPrefix = "AvroInput.Injection.", groups = { "FIELDS", "LOOKUP_FIELDS" }, hide = {
   "FIELD_POSITION", "FIELD_LENGTH", "FIELD_IGNORE", "FIELD_FORMAT", "FIELD_PRECISION", "FIELD_CURRENCY",
   "FIELD_DECIMAL", "FIELD_GROUP", "FIELD_REPEAT", "FIELD_TRIM_TYPE"
@@ -53,7 +53,7 @@ public class AvroInputMeta extends AvroInputMetaBase {
   private Boolean testing = false;
 
   public AvroInputMeta( NamedClusterServiceLocator namedClusterServiceLocator,
-      NamedClusterService namedClusterService, MetastoreLocatorOsgi metaStore ) {
+                        NamedClusterService namedClusterService, MetastoreLocatorOsgi metaStore ) {
     this.namedClusterServiceLocator = namedClusterServiceLocator;
     this.namedClusterService = namedClusterService;
     this.metaStoreService = metaStore;
@@ -73,7 +73,8 @@ public class AvroInputMeta extends AvroInputMetaBase {
   public NamedCluster getNamedCluster() {
     if ( !testing ) {
       NamedCluster namedCluster =
-              NamedClusterResolver.resolveNamedCluster(namedClusterServiceLocator, namedClusterService, metaStoreService, this.getDataLocation());
+        NamedClusterResolver.resolveNamedCluster( namedClusterServiceLocator, namedClusterService, metaStoreService,
+          this.getDataLocation() );
       return namedCluster;
     } else {
       namedClusterService.getClusterTemplate();
@@ -83,7 +84,8 @@ public class AvroInputMeta extends AvroInputMetaBase {
 
   public NamedCluster getNamedCluster( String fileUri ) {
     NamedCluster namedCluster =
-            NamedClusterResolver.resolveNamedCluster( namedClusterServiceLocator, namedClusterService, metaStoreService, fileUri );
+      NamedClusterResolver
+        .resolveNamedCluster( namedClusterServiceLocator, namedClusterService, metaStoreService, fileUri );
     return namedCluster;
   }
 

@@ -63,7 +63,8 @@ import static org.pentaho.big.data.kettle.plugins.hdfs.trans.HadoopFileInputDial
   documentationUrl = "Products/Hadoop_File_Input",
   categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.BigData",
   i18nPackageName = "org.pentaho.di.trans.steps.hadoopfileinput" )
-@InjectionSupported( localizationPrefix = "HadoopFileInput.Injection.", groups = { "FILENAME_LINES", "FIELDS", "FILTERS" } )
+@InjectionSupported( localizationPrefix = "HadoopFileInput.Injection.", groups = { "FILENAME_LINES", "FIELDS",
+  "FILTERS" } )
 public class HadoopFileInputMeta extends TextFileInputMeta implements HadoopFileMeta {
 
   // is not used. Can we delete it?
@@ -106,8 +107,10 @@ public class HadoopFileInputMeta extends TextFileInputMeta implements HadoopFile
     Node sourceNode = XMLHandler.getSubNodeByNr( filenode, SOURCE_CONFIGURATION_NAME, i );
     String source = XMLHandler.getNodeValue( sourceNode );
     try {
-      return source_filefolder == null ? null : loadUrl( encryptDecryptPassword( source_filefolder, EncryptDirection.DECRYPT ), source, metaStore, namedClusterURLMapping );
-    } catch (Exception ex) {
+      return source_filefolder == null ? null
+        : loadUrl( encryptDecryptPassword( source_filefolder, EncryptDirection.DECRYPT ), source, metaStore,
+          namedClusterURLMapping );
+    } catch ( Exception ex ) {
       // Do nothing
     }
     return null;
@@ -116,7 +119,8 @@ public class HadoopFileInputMeta extends TextFileInputMeta implements HadoopFile
   @Override
   protected void saveSource( StringBuilder retVal, String source ) {
     String namedCluster = namedClusterURLMapping.get( source );
-    retVal.append( "      " ).append( XMLHandler.addTagValue( "name", encryptDecryptPassword( source, EncryptDirection.ENCRYPT ) ) );
+    retVal.append( "      " )
+      .append( XMLHandler.addTagValue( "name", encryptDecryptPassword( source, EncryptDirection.ENCRYPT ) ) );
     retVal.append( "          " ).append( XMLHandler.addTagValue( SOURCE_CONFIGURATION_NAME, namedCluster ) );
   }
 
@@ -126,14 +130,16 @@ public class HadoopFileInputMeta extends TextFileInputMeta implements HadoopFile
     throws KettleException {
     String source_filefolder = rep.getStepAttributeString( id_step, i, "file_name" );
     String ncName = rep.getJobEntryAttributeString( id_step, i, SOURCE_CONFIGURATION_NAME );
-    return loadUrl( encryptDecryptPassword( source_filefolder, EncryptDirection.DECRYPT ), ncName, metaStore, namedClusterURLMapping );
+    return loadUrl( encryptDecryptPassword( source_filefolder, EncryptDirection.DECRYPT ), ncName, metaStore,
+      namedClusterURLMapping );
   }
 
   @Override
   protected void saveSourceRep( Repository rep, ObjectId id_transformation, ObjectId id_step, int i, String fileName )
     throws KettleException {
     String namedCluster = namedClusterURLMapping.get( fileName );
-    rep.saveStepAttribute( id_transformation, id_step, i, "file_name", encryptDecryptPassword( fileName, EncryptDirection.ENCRYPT ) );
+    rep.saveStepAttribute( id_transformation, id_step, i, "file_name",
+      encryptDecryptPassword( fileName, EncryptDirection.ENCRYPT ) );
     rep.saveStepAttribute( id_transformation, id_step, i, SOURCE_CONFIGURATION_NAME, namedCluster );
   }
 
@@ -209,7 +215,8 @@ public class HadoopFileInputMeta extends TextFileInputMeta implements HadoopFile
       sourceNc = sourceNc.equals( S3_ENVIRONMENT ) ? HadoopFileInputMeta.S3_SOURCE_FILE + i : sourceNc;
       String source = inputFiles.fileName[ i ];
       if ( !Const.isEmpty( source ) ) {
-        inputFiles.fileName[ i ] = loadUrl( source, sourceNc, getParentStepMeta().getParentTransMeta().getMetaStore(), null );
+        inputFiles.fileName[ i ] =
+          loadUrl( source, sourceNc, getParentStepMeta().getParentTransMeta().getMetaStore(), null );
       } else {
         inputFiles.fileName[ i ] = "";
       }
@@ -247,7 +254,9 @@ public class HadoopFileInputMeta extends TextFileInputMeta implements HadoopFile
           default:
             throw new InvalidParameterException( "direction must be 'ENCODE' or 'DECODE'" );
         }
-        URI encryptedUri = new URI( uri.getScheme(), userInfoArray[ 0 ] + ":" + processedPassword, uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment() );
+        URI encryptedUri =
+          new URI( uri.getScheme(), userInfoArray[ 0 ] + ":" + processedPassword, uri.getHost(), uri.getPort(),
+            uri.getPath(), uri.getQuery(), uri.getFragment() );
         return encryptedUri.toString();
       }
     } catch ( URISyntaxException e ) {

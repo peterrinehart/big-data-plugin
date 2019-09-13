@@ -24,7 +24,6 @@ package org.pentaho.big.data.kettle.plugins.hadoopcluster.ui.endpoints;
 
 import org.json.simple.JSONObject;
 import org.pentaho.big.data.kettle.plugins.hadoopcluster.ui.dialog.HadoopClusterDialog;
-import org.pentaho.di.base.AbstractMeta;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.ui.spoon.Spoon;

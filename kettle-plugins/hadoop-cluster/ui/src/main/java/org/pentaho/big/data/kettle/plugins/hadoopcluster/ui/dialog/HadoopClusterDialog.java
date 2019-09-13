@@ -89,13 +89,13 @@ public class HadoopClusterDialog extends ThinDialog {
         String browseType = (String) arguments[ 0 ];
         String startPath = (String) arguments[ 1 ];
 
-        if ("folder".equals(browseType)) {
+        if ( "folder".equals( browseType ) ) {
           DirectoryDialog folderDialog = new DirectoryDialog( getParent().getShell(), SWT.OPEN );
-          folderDialog.setFilterPath(startPath);
+          folderDialog.setFilterPath( startPath );
           return folderDialog.open();
         } else {
           FileDialog fileDialog = new FileDialog( getParent().getShell(), SWT.OPEN );
-          fileDialog.setFileName(startPath);
+          fileDialog.setFileName( startPath );
           return fileDialog.open();
         }
       }

@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Pentaho Big Data
  * <p>
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  * <p>
  * ******************************************************************************
  * <p>
@@ -74,7 +74,7 @@ public class NamedClusterServiceOsgiImplTest {
   @Test
   public void updateTest() throws Exception {
     mockNamedClusterServiceOsgi.update( mockNamedClusterOsgi, mockMetastore );
-    verify( mockNamedClusterService ).update( any( NamedCluster.class ) , eq( mockMetastore ) );
+    verify( mockNamedClusterService ).update( any( NamedCluster.class ), eq( mockMetastore ) );
   }
 
   @Test
@@ -109,7 +109,7 @@ public class NamedClusterServiceOsgiImplTest {
 
   @Test
   public void getPropertiesTest() throws Exception {
-    mockNamedClusterServiceOsgi.getProperties( );
-    verify( mockNamedClusterService ).getProperties( );
+    mockNamedClusterServiceOsgi.getProperties();
+    verify( mockNamedClusterService ).getProperties();
   }
 }

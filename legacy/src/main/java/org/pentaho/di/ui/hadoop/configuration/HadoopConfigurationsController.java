@@ -2,7 +2,7 @@
  *
  * Pentaho Big Data
  *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -24,14 +24,8 @@ package org.pentaho.di.ui.hadoop.configuration;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.swt.widgets.Shell;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.hadoop.HadoopConfigurationInfo;
 import org.pentaho.di.ui.spoon.Spoon;
-import org.pentaho.hadoop.shim.api.ConfigurationException;
 import org.pentaho.ui.xul.impl.AbstractXulEventHandler;
-
-import java.util.List;
 
 /**
  * Created by bryan on 8/10/15.

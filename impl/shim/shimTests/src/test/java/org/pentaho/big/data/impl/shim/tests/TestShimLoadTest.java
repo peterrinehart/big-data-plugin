@@ -24,7 +24,6 @@ package org.pentaho.big.data.impl.shim.tests;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.hadoop.NoShimSpecifiedException;
 import org.pentaho.hadoop.shim.api.ConfigurationException;
 import org.pentaho.hadoop.shim.api.cluster.NamedCluster;
 import org.pentaho.runtime.test.TestMessageGetterFactory;

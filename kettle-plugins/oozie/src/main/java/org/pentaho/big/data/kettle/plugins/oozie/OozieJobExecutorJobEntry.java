@@ -2,7 +2,7 @@
  *
  * Pentaho Big Data
  *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -132,7 +132,7 @@ public class OozieJobExecutorJobEntry extends AbstractJobEntry<OozieJobExecutorC
 
     if ( checkOozieConnection && !StringUtils.isEmpty( getEffectiveOozieUrl( config ) ) ) {
       try {
-        hadoopClientServices = getHadoopClientServices(config);
+        hadoopClientServices = getHadoopClientServices( config );
         hadoopClientServices.getOozieProtocolUrl();
         hadoopClientServices.validateOozieWSVersion();
       } catch ( HadoopClientServicesException e ) {
@@ -142,9 +142,11 @@ public class OozieJobExecutorJobEntry extends AbstractJobEntry<OozieJobExecutorC
           messages
             .add( BaseMessages.getString( OozieJobExecutorJobEntry.class, "ValidationMessages.Invalid.Oozie.URL" ) );
         } else if ( e.getErrorCode().equals( HTTP_ERROR_CODE_401 ) || e.getErrorCode().equals( HTTP_ERROR_CODE_403 ) ) {
-          messages.add( BaseMessages.getString( OozieJobExecutorJobEntry.class, "ValidationMessages.Unauthorized.Oozie.Access" ) );
+          messages.add(
+            BaseMessages.getString( OozieJobExecutorJobEntry.class, "ValidationMessages.Unauthorized.Oozie.Access" ) );
         } else {
-          messages.add( BaseMessages.getString( OozieJobExecutorJobEntry.class, "ValidationMessages.Incompatible.Oozie.Versions" ) );
+          messages.add( BaseMessages
+            .getString( OozieJobExecutorJobEntry.class, "ValidationMessages.Incompatible.Oozie.Versions" ) );
         }
       }
     }
@@ -214,9 +216,8 @@ public class OozieJobExecutorJobEntry extends AbstractJobEntry<OozieJobExecutorC
    * Validates the current configuration of the step.
    * <p/>
    * <strong>To be valid in Quick Setup mode:</strong> <ul> <li>Name is required</li> <li>Oozie URL is required and
-   * must
-   * be a valid oozie location</li> <li>Workflow Properties file path is required and must be a valid job properties
-   * file</li> </ul>
+   * must be a valid oozie location</li> <li>Workflow Properties file path is required and must be a valid job
+   * properties file</li> </ul>
    *
    * @param config Configuration to validate
    * @return
@@ -281,8 +282,10 @@ public class OozieJobExecutorJobEntry extends AbstractJobEntry<OozieJobExecutorC
             && ( e.getCause() instanceof MalformedURLException || e.getCause() instanceof ConnectException ) ) ) {
             logError( BaseMessages.getString( OozieJobExecutorJobEntry.class, "ValidationMessages.Invalid.Oozie.URL" ),
               e );
-          }  else if ( e.getErrorCode().equals( HTTP_ERROR_CODE_401 ) || e.getErrorCode().equals( HTTP_ERROR_CODE_403 ) ) {
-            logError( BaseMessages.getString( OozieJobExecutorJobEntry.class, "ValidationMessages.Unauthorized.Oozie.Access" ) );
+          } else if ( e.getErrorCode().equals( HTTP_ERROR_CODE_401 ) || e.getErrorCode()
+            .equals( HTTP_ERROR_CODE_403 ) ) {
+            logError( BaseMessages
+              .getString( OozieJobExecutorJobEntry.class, "ValidationMessages.Unauthorized.Oozie.Access" ) );
           } else {
             logError( BaseMessages.getString( OozieJobExecutorJobEntry.class,
               "ValidationMessages.Incompatible.Oozie.Versions" ), e );
@@ -326,7 +329,7 @@ public class OozieJobExecutorJobEntry extends AbstractJobEntry<OozieJobExecutorC
         } catch ( HadoopClientServicesException e ) {
           setJobResultFailed( jobResult );
           logError(
-                  BaseMessages.getString( OozieJobExecutorJobEntry.class, "Oozie.JobExecutor.ERROR.OozieClient" ), e );
+            BaseMessages.getString( OozieJobExecutorJobEntry.class, "Oozie.JobExecutor.ERROR.OozieClient" ), e );
         } catch ( OozieServiceException e ) {
           setJobResultFailed( jobResult );
           logError(
@@ -369,8 +372,8 @@ public class OozieJobExecutorJobEntry extends AbstractJobEntry<OozieJobExecutorC
       NamedCluster cluster = getNamedCluster( config ).clone();
       cluster.setOozieUrl( getEffectiveOozieUrl( config ) );
       return namedClusterServiceLocator.getService(
-              cluster,
-              HadoopClientServices.class );
+        cluster,
+        HadoopClientServices.class );
     } catch ( ClusterInitializationException e ) {
       logError( "Cluster initialization failure on service load", e );
     } catch ( MetaStoreException e ) {

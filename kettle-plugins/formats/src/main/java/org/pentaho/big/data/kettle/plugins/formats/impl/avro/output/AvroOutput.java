@@ -2,7 +2,7 @@
  *
  * Pentaho Data Integration
  *
- * Copyright (C) 2018 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -51,7 +51,7 @@ public class AvroOutput extends BaseStep implements StepInterface {
   private AvroOutputData data;
 
   public AvroOutput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans, NamedClusterServiceLocator namedClusterServiceLocator ) {
+                     Trans trans, NamedClusterServiceLocator namedClusterServiceLocator ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
     this.namedClusterServiceLocator = namedClusterServiceLocator;
   }
@@ -64,7 +64,7 @@ public class AvroOutput extends BaseStep implements StepInterface {
 
       if ( data.output == null ) {
         try {
-        init();
+          init();
         } catch ( Throwable e ) {
           String error = e.getMessage().replaceAll( "TRANS_NAME", getTrans().getName() );
           error = error.replaceAll( "STEP_NAME", getStepname() );
@@ -80,17 +80,18 @@ public class AvroOutput extends BaseStep implements StepInterface {
         //create new outputMeta
         RowMetaInterface outputRMI = new RowMeta();
         //create data equals with output fileds
-        Object[] outputData = new Object[meta.getOutputFields().size()];
+        Object[] outputData = new Object[ meta.getOutputFields().size() ];
         for ( int i = 0; i < meta.getOutputFields().size(); i++ ) {
           int inputRowIndex = getInputRowMeta().indexOfValue( meta.getOutputFields().get( i ).getPentahoFieldName() );
           if ( inputRowIndex == -1 ) {
-            throw new KettleException( "Field name [" + meta.getOutputFields().get( i ).getPentahoFieldName() + " ] couldn't be found in the input stream!" );
+            throw new KettleException( "Field name [" + meta.getOutputFields().get( i ).getPentahoFieldName()
+              + " ] couldn't be found in the input stream!" );
           } else {
             ValueMetaInterface vmi = ValueMetaFactory.cloneValueMeta( getInputRowMeta().getValueMeta( inputRowIndex ) );
             //add output value meta according output fields
-            outputRMI.addValueMeta( i,  vmi );
+            outputRMI.addValueMeta( i, vmi );
             //add output data according output fields
-            outputData[i] = currentRow[inputRowIndex];
+            outputData[ i ] = currentRow[ inputRowIndex ];
           }
         }
         RowMetaAndData row = new RowMetaAndData( outputRMI, outputData );
@@ -119,11 +120,14 @@ public class AvroOutput extends BaseStep implements StepInterface {
     }
     TransMeta parentTransMeta = meta.getParentStepMeta().getParentTransMeta();
     data.output = formatService.createOutputFormat( IPentahoAvroOutputFormat.class, meta.getNamedCluster() );
-    data.output.setOutputFile( parentTransMeta.environmentSubstitute( meta.constructOutputFilename( meta.getFilename() ) ), meta.isOverrideOutput() );
+    data.output
+      .setOutputFile( parentTransMeta.environmentSubstitute( meta.constructOutputFilename( meta.getFilename() ) ),
+        meta.isOverrideOutput() );
     data.output.setFields( meta.getOutputFields() );
     IPentahoAvroOutputFormat.COMPRESSION compression;
     try {
-      compression = IPentahoAvroOutputFormat.COMPRESSION.valueOf( parentTransMeta.environmentSubstitute( meta.getCompressionType() ).toUpperCase() );
+      compression = IPentahoAvroOutputFormat.COMPRESSION
+        .valueOf( parentTransMeta.environmentSubstitute( meta.getCompressionType() ).toUpperCase() );
     } catch ( Exception ex ) {
       compression = IPentahoAvroOutputFormat.COMPRESSION.UNCOMPRESSED;
     }
@@ -132,7 +136,8 @@ public class AvroOutput extends BaseStep implements StepInterface {
     data.output.setRecordName( parentTransMeta.environmentSubstitute( meta.getRecordName() ) );
     data.output.setDocValue( parentTransMeta.environmentSubstitute( meta.getDocValue() ) );
     if ( meta.getSchemaFilename() != null && meta.getSchemaFilename().length() != 0 ) {
-      data.output.setSchemaFilename( parentTransMeta.environmentSubstitute( meta.constructOutputFilename( meta.getSchemaFilename() ) ) );
+      data.output.setSchemaFilename(
+        parentTransMeta.environmentSubstitute( meta.constructOutputFilename( meta.getSchemaFilename() ) ) );
     }
     data.writer = data.output.createRecordWriter();
   }

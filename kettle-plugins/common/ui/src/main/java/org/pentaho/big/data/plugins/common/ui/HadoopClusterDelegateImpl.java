@@ -2,7 +2,7 @@
  *
  * Pentaho Big Data
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -162,14 +162,15 @@ public class HadoopClusterDelegateImpl extends SpoonDelegate {
 
     XmlMetaStore xmlMetaStore;
     try {
-      xmlMetaStore = getXmlMetastore(metaStore);
+      xmlMetaStore = getXmlMetastore( metaStore );
     } catch ( MetaStoreException ex ) {
       xmlMetaStore = null;
     }
 
     // Rename the configuration folder to the new name.
     File source = new File( getNamedClusterConfigsRootDir( xmlMetaStore ) + "/" + namedCluster.getName() );
-    File destination = new File( getNamedClusterConfigsRootDir( xmlMetaStore ) + "/" + namedClusterDialogImpl.getNamedCluster().getName() );
+    File destination = new File(
+      getNamedClusterConfigsRootDir( xmlMetaStore ) + "/" + namedClusterDialogImpl.getNamedCluster().getName() );
 
     try {
       FileUtils.copyDirectory( source, destination );
@@ -214,7 +215,8 @@ public class HadoopClusterDelegateImpl extends SpoonDelegate {
   }
 
   private String getNamedClusterConfigsRootDir( XmlMetaStore metaStore ) {
-    return System.getProperty( "user.home" ) + File.separator + ".pentaho"  + File.separator + "metastore"  + File.separator + "pentaho" + File.separator + "NamedCluster" + File.separator + "Configs";
+    return System.getProperty( "user.home" ) + File.separator + ".pentaho" + File.separator + "metastore"
+      + File.separator + "pentaho" + File.separator + "NamedCluster" + File.separator + "Configs";
   }
 
   public String newNamedCluster( VariableSpace variableSpace, IMetaStore metaStore, Shell shell ) {
@@ -255,7 +257,8 @@ public class HadoopClusterDelegateImpl extends SpoonDelegate {
 
   private void addConfigProperties( NamedCluster namedCluster ) throws Exception {
     Path clusterConfigDirPath = Paths.get( getNamedClusterConfigsRootDir( null ) + "/" + namedCluster.getName() );
-    Path configPropertiesPath = Paths.get( getNamedClusterConfigsRootDir( null ) + "/" + namedCluster.getName() + "/" + "config.properties" );
+    Path configPropertiesPath =
+      Paths.get( getNamedClusterConfigsRootDir( null ) + "/" + namedCluster.getName() + "/" + "config.properties" );
     Files.createDirectories( clusterConfigDirPath );
     String sampleConfigProperties = namedCluster.getShimIdentifier() + "sampleconfig.properties";
     InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream( sampleConfigProperties );
@@ -270,7 +273,7 @@ public class HadoopClusterDelegateImpl extends SpoonDelegate {
         namedClusterService.delete( namedCluster.getName(), metaStore );
         XmlMetaStore xmlMetaStore = getXmlMetastore( metaStore );
         if ( xmlMetaStore != null ) {
-          String path = getNamedClusterConfigsRootDir( xmlMetaStore ) + "/" +  namedCluster.getName();
+          String path = getNamedClusterConfigsRootDir( xmlMetaStore ) + "/" + namedCluster.getName();
           try {
             FileUtils.deleteDirectory( new File( path ) );
           } catch ( IOException e ) {

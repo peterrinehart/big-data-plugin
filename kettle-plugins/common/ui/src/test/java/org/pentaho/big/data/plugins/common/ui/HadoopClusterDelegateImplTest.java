@@ -94,14 +94,18 @@ public class HadoopClusterDelegateImplTest {
     hadoopClusterDelegate =
       new HadoopClusterDelegateImpl( spoon, namedClusterService, runtimeTestActionService, runtimeTester,
         commonDialogFactory );
-    String configurationDirectory =  System.getProperty( "user.home" ) + File.separator + ".pentaho"  + File.separator + "metastore"  + File.separator + "pentaho" + File.separator + "NamedCluster" + File.separator + "Configs";
-    Files.createDirectory( Paths.get( configurationDirectory + "/" + namedClusterName) );
+    String configurationDirectory =
+      System.getProperty( "user.home" ) + File.separator + ".pentaho" + File.separator + "metastore" + File.separator
+        + "pentaho" + File.separator + "NamedCluster" + File.separator + "Configs";
+    Files.createDirectory( Paths.get( configurationDirectory + "/" + namedClusterName ) );
   }
 
   @After
   public void tearDown() throws IOException {
-    String configurationDirectory =  System.getProperty( "user.home" ) + File.separator + ".pentaho"  + File.separator + "metastore"  + File.separator + "pentaho" + File.separator + "NamedCluster" + File.separator + "Configs";
-    Files.deleteIfExists( Paths.get( configurationDirectory + "/" + namedClusterName) );
+    String configurationDirectory =
+      System.getProperty( "user.home" ) + File.separator + ".pentaho" + File.separator + "metastore" + File.separator
+        + "pentaho" + File.separator + "NamedCluster" + File.separator + "Configs";
+    Files.deleteIfExists( Paths.get( configurationDirectory + "/" + namedClusterName ) );
     Files.deleteIfExists( Paths.get( configurationDirectory + "/" + "newName" ) );
     Files.deleteIfExists( Paths.get( configurationDirectory + "/" + "null" ) );
     Files.deleteIfExists( Paths.get( configurationDirectory + "/" + "clonedName" ) );
@@ -199,7 +203,7 @@ public class HadoopClusterDelegateImplTest {
     doThrow( metaStoreException ).when( namedClusterService ).delete( namedClusterName, metaStore );
     hadoopClusterDelegate.delNamedCluster( metaStore, namedCluster );
     verify( commonDialogFactory ).createErrorDialog( shell, BaseMessages.getString( PKG,
-        HadoopClusterDelegateImpl.SPOON_DIALOG_ERROR_DELETING_NAMED_CLUSTER_TITLE ), BaseMessages
+      HadoopClusterDelegateImpl.SPOON_DIALOG_ERROR_DELETING_NAMED_CLUSTER_TITLE ), BaseMessages
         .getString( PKG,
           HadoopClusterDelegateImpl.SPOON_DIALOG_ERROR_DELETING_NAMED_CLUSTER_MESSAGE, namedClusterName ),
       metaStoreException );

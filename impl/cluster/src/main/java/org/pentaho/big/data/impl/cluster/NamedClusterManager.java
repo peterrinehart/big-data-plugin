@@ -2,7 +2,7 @@
  *
  * Pentaho Big Data
  *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -64,7 +64,8 @@ public class NamedClusterManager implements NamedClusterService {
   }
 
   protected void initProperties() {
-    final ServiceReference<?> serviceReference = getBundleContext().getServiceReference( ConfigurationAdmin.class.getName() );
+    final ServiceReference<?> serviceReference =
+      getBundleContext().getServiceReference( ConfigurationAdmin.class.getName() );
     if ( serviceReference != null ) {
       try {
         final ConfigurationAdmin admin = (ConfigurationAdmin) getBundleContext().getService( serviceReference );
@@ -81,18 +82,19 @@ public class NamedClusterManager implements NamedClusterService {
   }
 
   /**
-   * returns a NamedClusterMetaStoreFactory for a given MetaStore instance.
-   * NOTE:  This method caches and returns a factory for Embedded MetaStores.  For all other
-   * MetaStores, a new instance of MetaStoreFactory will always be returned.
+   * returns a NamedClusterMetaStoreFactory for a given MetaStore instance. NOTE:  This method caches and returns a
+   * factory for Embedded MetaStores.  For all other MetaStores, a new instance of MetaStoreFactory will always be
+   * returned.
    *
-   * @param  metastore - the MetaStore for which to to get a MetaStoreFactory.
+   * @param metastore - the MetaStore for which to to get a MetaStoreFactory.
    * @return a MetaStoreFactory for the given MetaStore.
    */
   @VisibleForTesting
   MetaStoreFactory<NamedClusterImpl> getMetaStoreFactory( IMetaStore metastore ) {
     MetaStoreFactory<NamedClusterImpl> namedClusterMetaStoreFactory = null;
 
-    // Only MetaStoreFactories for EmbeddedMetaStores are cached.  For all other MetaStore types, create a new MetaStoreFactory
+    // Only MetaStoreFactories for EmbeddedMetaStores are cached.  For all other MetaStore types, create a new
+    // MetaStoreFactory
     if ( !( metastore instanceof EmbeddedMetaStore ) ) {
       return new MetaStoreFactory<>( NamedClusterImpl.class, metastore, PentahoDefaults.NAMESPACE );
     }
@@ -102,7 +104,7 @@ public class NamedClusterManager implements NamedClusterService {
 
     if ( namedClusterMetaStoreFactory == null ) {
       namedClusterMetaStoreFactory =
-              new MetaStoreFactory<>( NamedClusterImpl.class, metastore, NamedClusterEmbedManager.NAMESPACE );
+        new MetaStoreFactory<>( NamedClusterImpl.class, metastore, NamedClusterEmbedManager.NAMESPACE );
 
       factoryMap.put( metastore, namedClusterMetaStoreFactory );
     }
@@ -164,7 +166,7 @@ public class NamedClusterManager implements NamedClusterService {
 
   @Override
   public void update( NamedCluster namedCluster, IMetaStore metastore ) throws MetaStoreException {
-     MetaStoreFactory<NamedClusterImpl> factory = getMetaStoreFactory( metastore );
+    MetaStoreFactory<NamedClusterImpl> factory = getMetaStoreFactory( metastore );
     List<NamedCluster> namedClusters = list( metastore );
     for ( NamedCluster nc : namedClusters ) {
       if ( namedCluster.getName().equals( nc.getName() ) ) {
@@ -190,7 +192,7 @@ public class NamedClusterManager implements NamedClusterService {
       // While executing Pentaho MapReduce on a secure cluster, the .lock file
       // might not be able to be created due to permissions.
       // In this case, try and read the MetaStore without locking.
-      namedClusters = new ArrayList<>(factory.getElements(false));
+      namedClusters = new ArrayList<>( factory.getElements( false ) );
     }
 
     return namedClusters;

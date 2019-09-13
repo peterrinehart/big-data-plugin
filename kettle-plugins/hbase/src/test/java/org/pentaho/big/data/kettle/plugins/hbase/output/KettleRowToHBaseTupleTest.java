@@ -2,7 +2,7 @@
  *
  * Pentaho Big Data
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -98,21 +98,21 @@ public class KettleRowToHBaseTupleTest {
 
     ByteConversionUtil byteConversionUtil = Mockito.mock( ByteConversionUtil.class );
 
-    String row[] = { "key", "family", "@@@binary@@@column", "value", "public" };
+    String[] row = { "key", "family", "@@@binary@@@column", "value", "public" };
 
     HBaseTableWriteOperationManager writeManager = Mockito.mock( HBaseTableWriteOperationManager.class );
 
     HBasePut put = Mockito.mock( HBasePut.class );
 
-    when( writeManager.createPut( row[0].getBytes() ) ).thenReturn( put );
+    when( writeManager.createPut( row[ 0 ].getBytes() ) ).thenReturn( put );
 
-    when( byteConversionUtil.encodeKeyValue( row[0], keyMeta, KeyType.STRING ) ).thenReturn( row[0].getBytes() );
+    when( byteConversionUtil.encodeKeyValue( row[ 0 ], keyMeta, KeyType.STRING ) ).thenReturn( row[ 0 ].getBytes() );
 
     rowConverter.createTuplePut( writeManager, byteConversionUtil, row, true );
 
-    verify( put, times( 1 ) ).addColumn( eq( row[1] ), eq( "column" ), eq( true ), any() );
-    verify( put, times( 1 ) ).addColumn( eq( row[1] ), eq( MappingUtils.TUPLE_MAPPING_VISIBILITY ), eq( false ),
-        any() );
+    verify( put, times( 1 ) ).addColumn( eq( row[ 1 ] ), eq( "column" ), eq( true ), any() );
+    verify( put, times( 1 ) ).addColumn( eq( row[ 1 ] ), eq( MappingUtils.TUPLE_MAPPING_VISIBILITY ), eq( false ),
+      any() );
     verify( put, times( 1 ) ).setWriteToWAL( true );
 
     try {

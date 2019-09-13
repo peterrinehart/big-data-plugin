@@ -23,9 +23,7 @@
 package org.pentaho.big.data.kettle.plugins.pig;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.pentaho.hadoop.shim.api.HadoopClientServices;
 import org.pentaho.hadoop.shim.api.cluster.NamedCluster;
 import org.pentaho.hadoop.shim.api.cluster.NamedClusterService;
@@ -55,7 +53,6 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

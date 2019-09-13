@@ -50,10 +50,11 @@ public class ThinHadoopClusterTreeDelegateExtension implements ExtensionPointInt
     if ( path[ 2 ].equals( HadoopClusterFolderProvider.STRING_NEW_HADOOP_CLUSTER ) ) {
       switch ( caseNumber ) {
         case 3:
-          //TODO: when this is modified you can also modify HadoopClusterPopupMenuExtension with some other type, probably related to HadoopClusterJsonProvider
+          //TODO: when this is modified you can also modify HadoopClusterPopupMenuExtension with some other type,
+          // probably related to HadoopClusterJsonProvider
           object = new TreeSelection( path[ 2 ], ConnectionDetails.class, meta );
           break;
-       }
+      }
     }
 
     if ( object != null ) {

@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Pentaho Big Data
  * <p>
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  * <p>
  * ******************************************************************************
  * <p>
@@ -35,7 +35,6 @@ import org.pentaho.di.core.osgi.api.MetastoreLocatorOsgi;
 import org.pentaho.hadoop.shim.api.cluster.NamedCluster;
 import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.metastore.api.exceptions.MetaStoreException;
-import org.pentaho.osgi.metastore.locator.api.MetastoreLocator;
 
 public class NamedClusterConfigBuilderTest {
 

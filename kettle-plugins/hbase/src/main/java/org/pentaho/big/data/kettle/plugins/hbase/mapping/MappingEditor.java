@@ -2,7 +2,7 @@
  *
  * Pentaho Big Data
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -88,10 +88,9 @@ import org.pentaho.runtime.test.action.RuntimeTestActionService;
  * supplied then the HBase defaults of no compression and no bloom filter(s) are used. The table name may be suffixed
  * with
  *
- * @[NONE | GZ | LZO][@[NONE | ROW | ROWCOL]] for compression and bloom filter type respectively. Note that LZO
- *        compression requires LZO libraries to be installed on the HBase nodes.
- *
  * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
+ * @[NONE | GZ | LZO][@[NONE | ROW | ROWCOL]] for compression and bloom filter type respectively. Note that LZO
+ * compression requires LZO libraries to be installed on the HBase nodes.
  */
 public class MappingEditor extends Composite implements ConfigurationProducer {
 
@@ -131,7 +130,9 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
   protected ConfigurationProducer m_configProducer;
   protected FieldProducer m_incomingFieldsProducer;
 
-  /** default family name to use when creating a new table using incoming fields */
+  /**
+   * default family name to use when creating a new table using incoming fields
+   */
   protected static final String DEFAULT_FAMILY = "Family1";
 
   protected String m_currentConfiguration = "";
@@ -182,7 +183,8 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
       fd.right = new FormAttachment( middle, -margin );
       namedClusterLabel.setLayoutData( fd );
 
-      namedClusterWidget = new NamedClusterWidgetImpl( this, false, namedClusterService, runtimeTestActionService, runtimeTester );
+      namedClusterWidget =
+        new NamedClusterWidgetImpl( this, false, namedClusterService, runtimeTestActionService, runtimeTester );
       namedClusterWidget.initiate();
       props.setLook( namedClusterWidget );
       fd = new FormData();
@@ -195,16 +197,16 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
     }
 
     parent.addDisposeListener(
-        new DisposeListener() {
-      @Override
-      public void widgetDisposed( DisposeEvent de ) {
-        try {
-          resetConnection();
-        } catch ( Exception e ) {
-          // we have to swallow it.
+      new DisposeListener() {
+        @Override
+        public void widgetDisposed( DisposeEvent de ) {
+          try {
+            resetConnection();
+          } catch ( Exception e ) {
+            // we have to swallow it.
+          }
         }
-      }
-    } );
+      } );
 
     // table names
     Label tableNameLab = new Label( this, SWT.RIGHT );
@@ -319,25 +321,25 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
 
     // fields
     ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo( Messages.getString( "HBaseInputDialog.Fields.FIELD_ALIAS" ), ColumnInfo.COLUMN_TYPE_TEXT,
-              false ),
-          new ColumnInfo( Messages.getString( "HBaseInputDialog.Fields.FIELD_KEY" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
-              false ),
-          new ColumnInfo( Messages.getString( "HBaseInputDialog.Fields.FIELD_FAMILY" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
-              false ),
-          new ColumnInfo( Messages.getString( "HBaseInputDialog.Fields.FIELD_NAME" ), ColumnInfo.COLUMN_TYPE_TEXT,
-              false ),
-          new ColumnInfo( Messages.getString( "HBaseInputDialog.Fields.FIELD_TYPE" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
-              false ),
-          new ColumnInfo( Messages.getString( "HBaseInputDialog.Fields.FIELD_INDEXED" ), ColumnInfo.COLUMN_TYPE_TEXT,
-              false ), };
+      new ColumnInfo[] {
+        new ColumnInfo( Messages.getString( "HBaseInputDialog.Fields.FIELD_ALIAS" ), ColumnInfo.COLUMN_TYPE_TEXT,
+          false ),
+        new ColumnInfo( Messages.getString( "HBaseInputDialog.Fields.FIELD_KEY" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
+          false ),
+        new ColumnInfo( Messages.getString( "HBaseInputDialog.Fields.FIELD_FAMILY" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
+          false ),
+        new ColumnInfo( Messages.getString( "HBaseInputDialog.Fields.FIELD_NAME" ), ColumnInfo.COLUMN_TYPE_TEXT,
+          false ),
+        new ColumnInfo( Messages.getString( "HBaseInputDialog.Fields.FIELD_TYPE" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
+          false ),
+        new ColumnInfo( Messages.getString( "HBaseInputDialog.Fields.FIELD_INDEXED" ), ColumnInfo.COLUMN_TYPE_TEXT,
+          false ), };
 
-    m_keyCI = colinf[1];
+    m_keyCI = colinf[ 1 ];
     m_keyCI.setComboValues( new String[] { "N", "Y" } );
-    m_familyCI = colinf[2];
+    m_familyCI = colinf[ 2 ];
     m_familyCI.setComboValues( new String[] { "" } );
-    m_typeCI = colinf[4];
+    m_typeCI = colinf[ 4 ];
     // default types for non-key fields
     m_typeCI.setComboValues( new String[] { "String", "Integer", "Long", "Float", "Double", "Date", "BigNumber",
       "Serializable", "Binary" } );
@@ -357,12 +359,12 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
         String keyOrNot = tableItem.getText( 2 );
         if ( Utils.isEmpty( keyOrNot ) || keyOrNot.equalsIgnoreCase( "N" ) ) {
           comboValues =
-              new String[] { "String", "Integer", "Long", "Float", "Double", "Boolean", "Date", "BigNumber",
-                "Serializable", "Binary" };
+            new String[] { "String", "Integer", "Long", "Float", "Double", "Boolean", "Date", "BigNumber",
+              "Serializable", "Binary" };
         } else {
           comboValues =
-              new String[] { "String", "Integer", "UnsignedInteger", "Long", "UnsignedLong", "Date", "UnsignedDate",
-                "Binary" };
+            new String[] { "String", "Integer", "UnsignedInteger", "Long", "UnsignedLong", "Date", "UnsignedDate",
+              "Binary" };
         }
 
         return comboValues;
@@ -460,10 +462,10 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
     if ( existingRowAliases.size() > 0 ) {
       // Ask what we should do with existing mapping data
       MessageDialog md =
-          new MessageDialog( m_shell, Messages.getString( "MappingDialog.GetFieldsChoice.Title" ), null, Messages
-              .getString( "MappingDialog.GetFieldsChoice.Message", "" + existingRowAliases.size(), "" + ( fromOutputStep
-                  ? /* 6 */ 5 : 5 ) ), MessageDialog.WARNING, new String[] { Messages.getString(
-                      "MappingOutputDialog.ClearAndAdd" ), Messages.getString( "MappingOutputDialog.Cancel" ), }, 0 );
+        new MessageDialog( m_shell, Messages.getString( "MappingDialog.GetFieldsChoice.Title" ), null, Messages
+          .getString( "MappingDialog.GetFieldsChoice.Message", "" + existingRowAliases.size(), "" + ( fromOutputStep
+            ? /* 6 */ 5 : 5 ) ), MessageDialog.WARNING, new String[] { Messages.getString(
+          "MappingOutputDialog.ClearAndAdd" ), Messages.getString( "MappingOutputDialog.Cancel" ), }, 0 );
       MessageDialog.setDefaultImage( GUIResource.getInstance().getImageSpoon() );
       int idx = md.open();
       choice = idx & 0xFF;
@@ -528,12 +530,12 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
         if ( existingRowAliases.size() > 0 ) {
           // Ask what we should do with existing mapping data
           MessageDialog md =
-              new MessageDialog( m_shell, Messages.getString( "MappingDialog.GetFieldsChoice.Title" ), null, Messages
-                  .getString( "MappingDialog.GetFieldsChoice.Message", "" + existingRowAliases.size(), ""
-                      + incomingRowMeta.size() ), MessageDialog.WARNING, new String[] { Messages.getString(
-                          "MappingDialog.AddNew" ), Messages.getString( "MappingOutputDialog.Add" ), Messages.getString(
-                              "MappingOutputDialog.ClearAndAdd" ), Messages.getString(
-                                  "MappingOutputDialog.Cancel" ), }, 0 );
+            new MessageDialog( m_shell, Messages.getString( "MappingDialog.GetFieldsChoice.Title" ), null, Messages
+              .getString( "MappingDialog.GetFieldsChoice.Message", "" + existingRowAliases.size(), ""
+                + incomingRowMeta.size() ), MessageDialog.WARNING, new String[] { Messages.getString(
+              "MappingDialog.AddNew" ), Messages.getString( "MappingOutputDialog.Add" ), Messages.getString(
+              "MappingOutputDialog.ClearAndAdd" ), Messages.getString(
+              "MappingOutputDialog.Cancel" ), }, 0 );
           MessageDialog.setDefaultImage( GUIResource.getInstance().getImageSpoon() );
           int idx = md.open();
           choice = idx & 0xFF;
@@ -569,9 +571,9 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
             item.setText( 1, vm.getName() );
             item.setText( 2, "N" );
 
-            if ( m_familyCI.getComboValues()[0].length() > 0 ) {
+            if ( m_familyCI.getComboValues()[ 0 ].length() > 0 ) {
               // use existing first column family name as the default
-              item.setText( 3, m_familyCI.getComboValues()[0] );
+              item.setText( 3, m_familyCI.getComboValues()[ 0 ] );
             } else {
               // default
               item.setText( 3, DEFAULT_FAMILY );
@@ -603,8 +605,8 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
   private void populateTableCombo( boolean force ) {
     if ( namedClusterWidget != null && namedClusterWidget.getSelectedNamedCluster() == null ) {
       MessageDialog.openError( m_shell, BaseMessages.getString( PKG,
-          "MappingDialog.Error.Title.NamedClusterNotSelected" ), BaseMessages.getString( PKG,
-              "MappingDialog.Error.Message.NamedClusterNotSelected.Msg" ) );
+        "MappingDialog.Error.Title.NamedClusterNotSelected" ), BaseMessages.getString( PKG,
+        "MappingDialog.Error.Message.NamedClusterNotSelected.Msg" ) );
       return;
     }
 
@@ -657,14 +659,14 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
 
   private void showConnectionErrorDialog( Exception ex ) {
     new ErrorDialog( m_shell, Messages.getString( "MappingDialog.Error.Title.UnableToConnect" ), Messages.getString(
-        "MappingDialog.Error.Message.UnableToConnect" ) + "\n\n", ex );
+      "MappingDialog.Error.Message.UnableToConnect" ) + "\n\n", ex );
   }
 
   private void deleteMapping() {
     if ( namedClusterWidget != null && namedClusterWidget.getSelectedNamedCluster() == null ) {
       MessageDialog.openError( m_shell, BaseMessages.getString( PKG,
-          "MappingDialog.Error.Title.NamedClusterNotSelected" ), BaseMessages.getString( PKG,
-              "MappingDialog.Error.Message.NamedClusterNotSelected.Msg" ) );
+        "MappingDialog.Error.Title.NamedClusterNotSelected" ), BaseMessages.getString( PKG,
+        "MappingDialog.Error.Message.NamedClusterNotSelected.Msg" ) );
       return;
     }
     String tableName = "";
@@ -677,15 +679,15 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
     }
     if ( Utils.isEmpty( tableName ) || Utils.isEmpty( m_existingMappingNamesCombo.getText().trim() ) ) {
       MessageDialog.openError( m_shell, Messages.getString( "MappingDialog.Error.Title.MissingTableMappingName" ),
-          Messages.getString( "MappingDialog.Error.Message.MissingTableMappingName" ) );
+        Messages.getString( "MappingDialog.Error.Message.MissingTableMappingName" ) );
       return;
     }
 
     try {
       boolean ok =
-          MessageDialog.openConfirm( m_shell, Messages.getString( "MappingDialog.Info.Title.ConfirmDelete" ), Messages
-              .getString( "MappingDialog.Info.Message.ConfirmDelete", m_existingMappingNamesCombo.getText().trim(),
-                  tableName ) );
+        MessageDialog.openConfirm( m_shell, Messages.getString( "MappingDialog.Info.Title.ConfirmDelete" ), Messages
+          .getString( "MappingDialog.Info.Message.ConfirmDelete", m_existingMappingNamesCombo.getText().trim(),
+            tableName ) );
 
       if ( ok ) {
         if ( notInitializedMappingAdmin() ) {
@@ -698,27 +700,27 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
         }
 
         boolean result =
-            m_admin.deleteMapping( m_existingTableNamesCombo.getText().trim(), m_existingMappingNamesCombo.getText()
-                .trim() );
+          m_admin.deleteMapping( m_existingTableNamesCombo.getText().trim(), m_existingMappingNamesCombo.getText()
+            .trim() );
         if ( result ) {
           MessageDialog.openConfirm( m_shell, Messages.getString( "MappingDialog.Info.Title.MappingDeleted" ), Messages
-              .getString( "MappingDialog.Info.Message.MappingDeleted", m_existingMappingNamesCombo.getText().trim(),
-                  tableName ) );
+            .getString( "MappingDialog.Info.Message.MappingDeleted", m_existingMappingNamesCombo.getText().trim(),
+              tableName ) );
 
           // make sure that the list of mappings for the selected table gets
           // updated.
           populateMappingComboAndFamilyStuff();
         } else {
           MessageDialog.openError( m_shell, Messages.getString( "MappingDialog.Error.Title.DeleteMapping" ), Messages
-              .getString( "MappingDialog.Error.Message.DeleteMapping", m_existingMappingNamesCombo.getText().trim(),
-                  tableName ) );
+            .getString( "MappingDialog.Error.Message.DeleteMapping", m_existingMappingNamesCombo.getText().trim(),
+              tableName ) );
         }
       }
       return;
     } catch ( Exception ex ) {
       MessageDialog.openError( m_shell, Messages.getString( "MappingDialog.Error.Title.DeleteMapping" ), Messages
-          .getString( "MappingDialog.Error.Message.DeleteMappingIO", m_existingMappingNamesCombo.getText().trim(),
-              tableName, ex.getMessage() ) );
+        .getString( "MappingDialog.Error.Message.DeleteMappingIO", m_existingMappingNamesCombo.getText().trim(),
+          tableName, ex.getMessage() ) );
     }
   }
 
@@ -730,7 +732,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
    * Parameter includeKeyToColumns should be true if only we need key to be included in mapColumns and mapAliases
    */
   public Mapping getMapping( boolean performChecksAndShowGUIErrorDialog, List<String> problems,
-      Boolean includeKeyToColumns ) {
+                             Boolean includeKeyToColumns ) {
     String tableName = "";
     if ( !Utils.isEmpty( m_existingTableNamesCombo.getText().trim() ) ) {
       tableName = m_existingTableNamesCombo.getText().trim();
@@ -742,9 +744,9 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
 
     // empty table name or mapping name does not force an abort
     if ( performChecksAndShowGUIErrorDialog && ( Utils.isEmpty( m_existingMappingNamesCombo.getText().trim() )
-        || Utils.isEmpty( tableName ) ) ) {
+      || Utils.isEmpty( tableName ) ) ) {
       MessageDialog.openError( m_shell, Messages.getString( "MappingDialog.Error.Title.MissingTableMappingName" ),
-          Messages.getString( "MappingDialog.Error.Message.MissingTableMappingName" ) );
+        Messages.getString( "MappingDialog.Error.Message.MissingTableMappingName" ) );
       if ( problems != null ) {
         problems.add( Messages.getString( "MappingDialog.Error.Message.MissingTableMappingName" ) );
       }
@@ -754,7 +756,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
     // do we have any non-empty rows in the table?
     if ( m_fieldsView.nrNonEmpty() == 0 && performChecksAndShowGUIErrorDialog ) {
       MessageDialog.openError( m_shell, Messages.getString( "MappingDialog.Error.Title.NoFieldsDefined" ), Messages
-          .getString( "MappingDialog.Error.Message.NoFieldsDefined" ) );
+        .getString( "MappingDialog.Error.Message.NoFieldsDefined" ) );
       if ( problems != null ) {
         problems.add( Messages.getString( "MappingDialog.Error.Message.NoFieldsDefined" ) );
       }
@@ -771,7 +773,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
       return null;
     }
     Mapping theMapping =
-        hBaseService.getMappingFactory().createMapping( tableName, m_existingMappingNamesCombo.getText().trim() );
+      hBaseService.getMappingFactory().createMapping( tableName, m_existingMappingNamesCombo.getText().trim() );
     boolean keyDefined = false;
     boolean moreThanOneKey = false;
     List<String> missingFamilies = new ArrayList<String>();
@@ -786,11 +788,11 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
     if ( nrNonEmpty >= 5 && nrNonEmpty <= 6 ) {
       for ( int i = 0; i < nrNonEmpty; i++ ) {
         if ( m_fieldsView.getNonEmpty( i ).getText( 1 ).equals( Mapping.TupleMapping.KEY.toString() ) || m_fieldsView
-            .getNonEmpty( i ).getText( 1 ).equals( Mapping.TupleMapping.FAMILY.toString() ) || m_fieldsView.getNonEmpty(
-                i ).getText( 1 ).equals( Mapping.TupleMapping.COLUMN.toString() ) || m_fieldsView.getNonEmpty( i )
-                    .getText( 1 ).equals( Mapping.TupleMapping.VALUE.toString() ) || m_fieldsView.getNonEmpty( i )
-                        .getText( 1 ).equals( Mapping.TupleMapping.TIMESTAMP.toString() ) || m_fieldsView.getNonEmpty(
-                            i ).getText( 1 ).equals( MappingUtils.TUPLE_MAPPING_VISIBILITY ) ) {
+          .getNonEmpty( i ).getText( 1 ).equals( Mapping.TupleMapping.FAMILY.toString() ) || m_fieldsView.getNonEmpty(
+          i ).getText( 1 ).equals( Mapping.TupleMapping.COLUMN.toString() ) || m_fieldsView.getNonEmpty( i )
+          .getText( 1 ).equals( Mapping.TupleMapping.VALUE.toString() ) || m_fieldsView.getNonEmpty( i )
+          .getText( 1 ).equals( Mapping.TupleMapping.TIMESTAMP.toString() ) || m_fieldsView.getNonEmpty(
+          i ).getText( 1 ).equals( MappingUtils.TUPLE_MAPPING_VISIBILITY ) ) {
           tupleIdCount++;
         }
       }
@@ -857,7 +859,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
           // belong to a column family or have a column name
           if ( performChecksAndShowGUIErrorDialog ) {
             MessageDialog.openError( m_shell, Messages.getString( "MappingDialog.Error.Title.NoAliasForKey" ), Messages
-                .getString( "MappingDialog.Error.Message.NoAliasForKey" ) );
+              .getString( "MappingDialog.Error.Message.NoAliasForKey" ) );
           }
           if ( problems != null ) {
             problems.add( Messages.getString( "MappingDialog.Error.Message.NoAliasForKey" ) );
@@ -869,7 +871,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
           // pop up an error dialog - must have a type for the key
           if ( performChecksAndShowGUIErrorDialog ) {
             MessageDialog.openError( m_shell, Messages.getString( "MappingDialog.Error.Title.NoTypeForKey" ), Messages
-                .getString( "MappingDialog.Error.Message.NoTypeForKey" ) );
+              .getString( "MappingDialog.Error.Message.NoTypeForKey" ) );
           }
           if ( problems != null ) {
             problems.add( Messages.getString( "MappingDialog.Error.Message.NoTypeForKey" ) );
@@ -881,7 +883,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
           // popup an error and then return
           if ( performChecksAndShowGUIErrorDialog ) {
             MessageDialog.openError( m_shell, Messages.getString( "MappingDialog.Error.Title.MoreThanOneKey" ), Messages
-                .getString( "MappingDialog.Error.Message.MoreThanOneKey" ) );
+              .getString( "MappingDialog.Error.Message.MoreThanOneKey" ) );
           }
           if ( problems != null ) {
             problems.add( Messages.getString( "MappingDialog.Error.Message.MoreThanOneKey" ) );
@@ -896,7 +898,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
           theMapping.setKeyName( alias );
         }
         HBaseValueMetaInterface vm =
-            valueMetaInterfaceFactory.createHBaseValueMetaInterface( null, null, alias, 0, -1, -1 );
+          valueMetaInterfaceFactory.createHBaseValueMetaInterface( null, null, alias, 0, -1, -1 );
         vm.setKey( true );
         try {
           theMapping.setKeyTypeAsString( type );
@@ -917,7 +919,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
             item.setText( 1, colName );
           }
           HBaseValueMetaInterface vm =
-              valueMetaInterfaceFactory.createHBaseValueMetaInterface( family, colName, alias, 0, -1, -1 );
+            valueMetaInterfaceFactory.createHBaseValueMetaInterface( family, colName, alias, 0, -1, -1 );
           try {
             vm.setHBaseTypeFromString( type );
           } catch ( IllegalArgumentException e ) {
@@ -938,12 +940,12 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
             // then return.
             if ( performChecksAndShowGUIErrorDialog ) {
               MessageDialog.openError( m_shell, Messages.getString( "MappingDialog.Error.Title.DuplicateColumn" ),
-                  Messages.getString( "MappingDialog.Error.Message1.DuplicateColumn" ) + family + "," + colName
-                      + Messages.getString( "MappingDialog.Error.Message2.DuplicateColumn" ) );
+                Messages.getString( "MappingDialog.Error.Message1.DuplicateColumn" ) + family + "," + colName
+                  + Messages.getString( "MappingDialog.Error.Message2.DuplicateColumn" ) );
             }
             if ( problems != null ) {
               problems.add( Messages.getString( "MappingDialog.Error.Message1.DuplicateColumn" ) + family + ","
-                  + colName + Messages.getString( "MappingDialog.Error.Message2.DuplicateColumn" ) );
+                + colName + Messages.getString( "MappingDialog.Error.Message2.DuplicateColumn" ) );
             }
 
             return null;
@@ -956,7 +958,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
     if ( !keyDefined ) {
       if ( performChecksAndShowGUIErrorDialog ) {
         MessageDialog.openError( m_shell, Messages.getString( "MappingDialog.Error.Title.NoKeyDefined" ), Messages
-            .getString( "MappingDialog.Error.Message.NoKeyDefined" ) );
+          .getString( "MappingDialog.Error.Message.NoKeyDefined" ) );
       }
       if ( problems != null ) {
         problems.add( Messages.getString( "MappingDialog.Error.Message.NoKeyDefined" ) );
@@ -982,7 +984,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
 
       if ( performChecksAndShowGUIErrorDialog ) {
         MessageDialog.openError( m_shell, Messages.getString( "MappingDialog.Error.Title.IssuesPreventingSaving" ), buff
-            .toString() );
+          .toString() );
       }
       if ( problems != null ) {
         problems.add( buff.toString() );
@@ -996,8 +998,8 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
   private void saveMapping() {
     if ( namedClusterWidget != null && namedClusterWidget.getSelectedNamedCluster() == null ) {
       MessageDialog.openError( m_shell, BaseMessages.getString( PKG,
-          "MappingDialog.Error.Title.NamedClusterNotSelected" ), BaseMessages.getString( PKG,
-              "MappingDialog.Error.Message.NamedClusterNotSelected.Msg" ) );
+        "MappingDialog.Error.Title.NamedClusterNotSelected" ), BaseMessages.getString( PKG,
+        "MappingDialog.Error.Message.NamedClusterNotSelected.Msg" ) );
       return;
     }
 
@@ -1026,8 +1028,8 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
       try {
         if ( !hbAdmin.getTable( tableName ).exists() ) {
           boolean result =
-              MessageDialog.openConfirm( m_shell, "Create table", "Table \"" + tableName
-                  + "\" does not exist. Create it?" );
+            MessageDialog.openConfirm( m_shell, "Create table", "Table \"" + tableName
+              + "\" does not exist. Create it?" );
 
           if ( !result ) {
             return;
@@ -1035,7 +1037,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
 
           if ( theMapping.getMappedColumns().size() == 0 ) {
             MessageDialog.openError( m_shell, "No columns defined",
-                "A HBase table requires at least one column family to be defined." );
+              "A HBase table requires at least one column family to be defined." );
             return;
           }
 
@@ -1054,9 +1056,9 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
           String bloomFilter = null;
           String[] opts = m_existingTableNamesCombo.getText().trim().split( "@" );
           if ( opts.length > 1 ) {
-            compression = opts[1];
+            compression = opts[ 1 ];
             if ( opts.length == 3 ) {
-              bloomFilter = opts[2];
+              bloomFilter = opts[ 2 ];
             }
           }
 
@@ -1080,8 +1082,8 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
         }
       } catch ( Exception ex ) {
         new ErrorDialog( m_shell, Messages.getString( "MappingDialog.Error.Title.ErrorCreatingTable" ), Messages
-            .getString( "MappingDialog.Error.Message.ErrorCreatingTable" ) + " \"" + m_existingTableNamesCombo.getText()
-                .trim() + "\"", ex );
+          .getString( "MappingDialog.Error.Message.ErrorCreatingTable" ) + " \"" + m_existingTableNamesCombo.getText()
+          .trim() + "\"", ex );
         return;
       }
     }
@@ -1091,10 +1093,10 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
       if ( m_admin.mappingExists( tableName, m_existingMappingNamesCombo.getText().trim() ) ) {
         // prompt for overwrite
         boolean result =
-            MessageDialog.openConfirm( m_shell, Messages.getString( "MappingDialog.Info.Title.MappingExists" ), Messages
-                .getString( "MappingDialog.Info.Message1.MappingExists" ) + m_existingMappingNamesCombo.getText().trim()
-                + Messages.getString( "MappingDialog.Info.Message2.MappingExists" ) + tableName + Messages.getString(
-                    "MappingDialog.Info.Message3.MappingExists" ) );
+          MessageDialog.openConfirm( m_shell, Messages.getString( "MappingDialog.Info.Title.MappingExists" ), Messages
+            .getString( "MappingDialog.Info.Message1.MappingExists" ) + m_existingMappingNamesCombo.getText().trim()
+            + Messages.getString( "MappingDialog.Info.Message2.MappingExists" ) + tableName + Messages.getString(
+            "MappingDialog.Info.Message3.MappingExists" ) );
         if ( !result ) {
           return;
         }
@@ -1102,13 +1104,13 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
       // finally add the mapping.
       m_admin.putMapping( theMapping, true );
       MessageDialog.openConfirm( m_shell, Messages.getString( "MappingDialog.Info.Title.MappingSaved" ), Messages
-          .getString( "MappingDialog.Info.Message1.MappingSaved" ) + m_existingMappingNamesCombo.getText().trim()
-          + Messages.getString( "MappingDialog.Info.Message2.MappingSaved" ) + tableName + Messages.getString(
-              "MappingDialog.Info.Message3.MappingSaved" ) );
+        .getString( "MappingDialog.Info.Message1.MappingSaved" ) + m_existingMappingNamesCombo.getText().trim()
+        + Messages.getString( "MappingDialog.Info.Message2.MappingSaved" ) + tableName + Messages.getString(
+        "MappingDialog.Info.Message3.MappingSaved" ) );
     } catch ( Exception ex ) {
       // inform the user via popup
       new ErrorDialog( m_shell, Messages.getString( "MappingDialog.Error.Title.ErrorSaving" ), Messages.getString(
-          "MappingDialog.Error.Message.ErrorSaving" ), ex );
+        "MappingDialog.Error.Message.ErrorSaving" ), ex );
     }
   }
 
@@ -1166,7 +1168,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
 
       if ( vm.getStorageType() == ValueMetaInterface.STORAGE_TYPE_INDEXED ) {
         item.setText( 6, m_admin.getConnection().getByteConversionUtil().objectIndexValuesToString( vm
-            .getIndex() ) );
+          .getIndex() ) );
       }
     }
 
@@ -1196,7 +1198,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
     } catch ( Exception ex ) {
       // inform the user via popup
       new ErrorDialog( m_shell, Messages.getString( "MappingDialog.Error.Title.ErrorLoadingMapping" ), Messages
-          .getString( "MappingDialog.Error.Message.ErrorLoadingMapping" ), ex );
+        .getString( "MappingDialog.Error.Message.ErrorLoadingMapping" ), ex );
     }
   }
 
@@ -1229,7 +1231,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
         HBaseTable hBaseTable = hbAdmin.getTable( tableName );
         if ( hBaseTable.exists() ) {
           List<String> colFams = hBaseTable.getColumnFamilies();
-          String[] familyNames = colFams.toArray( new String[1] );
+          String[] familyNames = colFams.toArray( new String[ 1 ] );
           m_familyCI.setComboValues( familyNames );
         } else {
           m_familyCI.setComboValues( new String[] { "" } );

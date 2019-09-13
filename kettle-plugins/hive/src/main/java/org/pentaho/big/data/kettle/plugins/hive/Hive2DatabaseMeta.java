@@ -165,7 +165,7 @@ public class Hive2DatabaseMeta extends DatabaseMetaWithVersion {
 
   @Override
   public String generateColumnAlias( int columnIndex, String suggestedName ) {
-      return suggestedName;
+    return suggestedName;
   }
 
   /**

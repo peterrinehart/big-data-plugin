@@ -2,7 +2,7 @@
  *
  * Pentaho Big Data
  *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -23,13 +23,13 @@
 package org.pentaho.big.data.kettle.plugins.oozie;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.spy;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,7 +40,6 @@ import org.apache.oozie.client.OozieClient;
 import org.apache.oozie.client.OozieClientException;
 import org.apache.oozie.client.WorkflowAction;
 import org.apache.oozie.client.WorkflowJob;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,8 +49,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.pentaho.hadoop.shim.api.cluster.NamedCluster;
 import org.pentaho.hadoop.shim.api.cluster.NamedClusterService;
 import org.pentaho.hadoop.shim.api.cluster.NamedClusterServiceLocator;
-import org.pentaho.hadoop.shim.api.cluster.ClusterInitializationException;
-
 import org.pentaho.big.data.kettle.plugins.job.JobEntryMode;
 import org.pentaho.big.data.kettle.plugins.job.PropertyEntry;
 
@@ -60,7 +57,6 @@ import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.variables.Variables;
 import org.pentaho.di.core.xml.XMLHandler;
-import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.job.entry.JobEntryCopy;
 import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.runtime.test.RuntimeTester;

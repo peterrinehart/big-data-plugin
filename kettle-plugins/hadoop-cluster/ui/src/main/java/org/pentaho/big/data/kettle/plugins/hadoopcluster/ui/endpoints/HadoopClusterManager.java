@@ -86,8 +86,7 @@ public class HadoopClusterManager {
       /*commonDialogFactory.createErrorDialog( spoon.getShell(),
           BaseMessages.getString( PKG, SPOON_DIALOG_ERROR_SAVING_NAMED_CLUSTER_TITLE ),
           BaseMessages.getString( PKG, SPOON_DIALOG_ERROR_SAVING_NAMED_CLUSTER_MESSAGE, nc.getName() ), e );
-          spoon.refreshTree()*/
-      ;
+          spoon.refreshTree();*/
       return null;
     }
 
@@ -125,8 +124,8 @@ public class HadoopClusterManager {
   private void addConfigProperties( NamedCluster namedCluster ) throws Exception {
     Path clusterConfigDirPath = Paths.get( getNamedClusterConfigsRootDir( null ) + "/" + namedCluster.getName() );
     Path
-        configPropertiesPath =
-        Paths.get( getNamedClusterConfigsRootDir( null ) + "/" + namedCluster.getName() + "/" + "config.properties" );
+      configPropertiesPath =
+      Paths.get( getNamedClusterConfigsRootDir( null ) + "/" + namedCluster.getName() + "/" + "config.properties" );
     Files.createDirectories( clusterConfigDirPath );
     String sampleConfigProperties = namedCluster.getShimIdentifier() + "sampleconfig.properties";
     InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream( sampleConfigProperties );
@@ -176,7 +175,8 @@ public class HadoopClusterManager {
     } catch ( MetaStoreException e ) {
       /*commonDialogFactory.createErrorDialog( spoon.getShell(),
           BaseMessages.getString( PKG, SPOON_DIALOG_ERROR_DELETING_NAMED_CLUSTER_TITLE ),
-          BaseMessages.getString( PKG, SPOON_DIALOG_ERROR_DELETING_NAMED_CLUSTER_MESSAGE, namedCluster.getName() ), e );*/
+          BaseMessages.getString( PKG, SPOON_DIALOG_ERROR_DELETING_NAMED_CLUSTER_MESSAGE, namedCluster.getName() ), e
+           );*/
     }
   }
 
@@ -186,6 +186,6 @@ public class HadoopClusterManager {
 
   private String getNamedClusterConfigsRootDir( XmlMetaStore metaStore ) {
     return System.getProperty( "user.home" ) + File.separator + ".pentaho" + File.separator + "metastore"
-        + File.separator + "pentaho" + File.separator + "NamedCluster" + File.separator + "Configs";
+      + File.separator + "pentaho" + File.separator + "NamedCluster" + File.separator + "Configs";
   }
 }
