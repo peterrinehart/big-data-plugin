@@ -225,11 +225,12 @@ public class NamedClusterManager implements NamedClusterService {
 
   @Override
   public NamedCluster getNamedClusterByName( String namedCluster, IMetaStore metastore ) {
-    if ( metastore == null ) {
+    IMetaStore metaStoreToSearch = getSlaveMetaStoreIfNull( metastore );
+    if ( metaStoreToSearch == null ) {
       return null;
     }
     try {
-      List<NamedCluster> namedClusters = list( metastore );
+      List<NamedCluster> namedClusters = list( metaStoreToSearch );
       for ( NamedCluster nc : namedClusters ) {
         if ( nc.getName().equals( namedCluster ) ) {
           return nc;
@@ -247,11 +248,12 @@ public class NamedClusterManager implements NamedClusterService {
 
   @Override
   public NamedCluster getNamedClusterByHost( String hostName, IMetaStore metastore ) {
-    if ( metastore == null || hostName == null ) {
+    IMetaStore metaStoreToSearch = getSlaveMetaStoreIfNull( metastore );
+    if ( metaStoreToSearch == null || hostName == null ) {
       return null;
     }
     try {
-      List<NamedCluster> namedClusters = list( metastore );
+      List<NamedCluster> namedClusters = list( metaStoreToSearch );
       for ( NamedCluster nc : namedClusters ) {
         if ( nc.getHdfsHost().equals( hostName ) ) {
           return nc;

@@ -102,17 +102,17 @@ public class HadoopFileOutputMeta extends TextFileOutputMeta implements HadoopFi
     if ( url == null ) {
       return null;
     }
-    if ( metastore == null ) {
-      // Maybe we can get a metastore from spoon
-      try {
-        metaStore = MetaStoreConst.openLocalPentahoMetaStore( false );
-      } catch ( Exception e ) {
-        // If no local metastore we must ignore and proceed
-      }
-    } else {
-      // if we already have a metastore use it
-      metaStore = metastore;
-    }
+//    if ( metastore == null ) {
+//      // Maybe we can get a metastore from spoon
+//      try {
+//        metaStore = MetaStoreConst.openLocalPentahoMetaStore( false );
+//      } catch ( Exception e ) {
+//        // If no local metastore we must ignore and proceed
+//      }
+//    } else {
+//      // if we already have a metastore use it
+//      metaStore = metastore;
+//    }
     NamedCluster c = getNamedCluster();
     if ( c != null ) {
       url = c.processURLsubstitution( url, metaStore, new Variables() );
