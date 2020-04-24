@@ -97,7 +97,7 @@ public class ParquetInput extends BaseFileInputStep<ParquetInputMeta, ParquetInp
     }
   }
 
-  void initSplits() throws Exception {
+  protected void initSplits() throws Exception {
     FormatService formatService = meta.getNamedClusterResolver().getNamedClusterServiceLocator()
       .getService( getNamedCluster(), FormatService.class );
     if ( meta.inputFiles == null || meta.inputFiles.fileName == null || meta.inputFiles.fileName.length == 0 ) {
@@ -149,7 +149,7 @@ public class ParquetInput extends BaseFileInputStep<ParquetInputMeta, ParquetInp
   }
 
 
-  void openReader( ParquetInputData data ) throws Exception {
+  protected void openReader( ParquetInputData data ) throws Exception {
     logDebug( "Open split {0}", data.currentSplit );
     IPentahoInputSplit sp = data.splits.get( data.currentSplit );
     data.reader = data.input.createRecordReader( sp );

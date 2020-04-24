@@ -33,10 +33,10 @@ import org.pentaho.hadoop.shim.api.format.IPentahoInputFormat.IPentahoInputSplit
 import org.pentaho.hadoop.shim.api.format.IPentahoParquetInputFormat;
 
 public class ParquetInputData extends BaseFileInputStepData {
-  IPentahoParquetInputFormat input;
-  List<IPentahoInputSplit> splits;
-  int currentSplit;
-  IPentahoRecordReader reader;
-  Iterator<RowMetaAndData> rowIterator;
-  RowMetaInterface outputRowMeta;
+  public IPentahoParquetInputFormat input;
+  public List<IPentahoInputSplit> splits;
+  public int currentSplit;
+  public IPentahoRecordReader reader;
+  public Iterator<RowMetaAndData> rowIterator;
+  public RowMetaInterface outputRowMeta;
 }
