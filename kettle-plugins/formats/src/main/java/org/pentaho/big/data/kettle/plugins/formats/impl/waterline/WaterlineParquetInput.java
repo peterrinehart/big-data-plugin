@@ -1,0 +1,173 @@
+/*! ******************************************************************************
+ *
+ * Pentaho Data Integration
+ *
+ * Copyright (C) 2019-2020 by Hitachi Vantara : http://www.pentaho.com
+ *
+ *******************************************************************************
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ ******************************************************************************/
+
+package org.pentaho.big.data.kettle.plugins.formats.impl.waterline;
+
+import org.pentaho.big.data.kettle.plugins.formats.impl.parquet.input.ParquetInput;
+import org.pentaho.big.data.kettle.plugins.formats.impl.parquet.input.ParquetInputData;
+import org.pentaho.di.core.RowMetaAndData;
+import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.trans.Trans;
+import org.pentaho.di.trans.TransMeta;
+import org.pentaho.di.trans.step.StepDataInterface;
+import org.pentaho.di.trans.step.StepMeta;
+import org.pentaho.di.trans.step.StepMetaInterface;
+
+import java.nio.file.NoSuchFileException;
+
+public class WaterlineParquetInput extends ParquetInput {
+  public static final long SPLIT_SIZE = 128 * 1024 * 1024L;
+
+  public WaterlineParquetInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
+                                Trans trans ) {
+    super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
+  }
+
+  @Override
+  public boolean processRow( StepMetaInterface smi, StepDataInterface sdi ) throws KettleException {
+    meta = ((WaterlineCatalogReaderMeta) smi).getParquetInputMeta();
+    data = (ParquetInputData) sdi;
+
+    try {
+      if ( data.splits == null ) {
+        initSplits();
+      }
+
+      if ( data.currentSplit >= data.splits.size() ) {
+        setOutputDone();
+        return false;
+      }
+
+      if ( data.reader == null ) {
+        openReader( data );
+      }
+
+      if ( data.rowIterator.hasNext() ) {
+        RowMetaAndData row = data.rowIterator.next();
+        putRow( row.getRowMeta(), row.getData() );
+        return true;
+      } else {
+        data.reader.close();
+        data.reader = null;
+        logDebug( "Close split {0}", data.currentSplit );
+        data.currentSplit++;
+        return true;
+      }
+    } catch ( NoSuchFileException ex ) {
+      throw new KettleException( "No input file" );
+    } catch ( KettleException ex ) {
+      throw ex;
+    } catch ( Exception ex ) {
+      throw new KettleException( ex );
+    }
+  }
+
+//  void initSplits() throws Exception {
+//    FormatService formatService = meta.getNamedClusterResolver().getNamedClusterServiceLocator()
+//      .getService( getNamedCluster(), FormatService.class );
+//    if ( meta.inputFiles == null || meta.inputFiles.fileName == null || meta.inputFiles.fileName.length == 0 ) {
+//      throw new KettleException( "No input files defined" );
+//    }
+//
+//    String inputFileName = environmentSubstitute( meta.inputFiles.fileName[ 0 ] );
+//    FileObject inputFileObject = KettleVFS.getFileObject( inputFileName, getTransMeta() );
+//    if ( AliasedFileObject.isAliasedFile( inputFileObject ) ) {
+//      inputFileName = ( (AliasedFileObject) inputFileObject ).getOriginalURIString();
+//    }
+//
+//    data.input = formatService.createInputFormat( IPentahoParquetInputFormat.class, getNamedCluster() );
+//
+//    // Pentaho 8.0 transformations will have the formatType set to 0. Get the fields from the schema and set the
+//    // formatType to the formatType retrieved from the schema.
+//    List<? extends IParquetInputField> actualFileFields =
+//      WaterlineParquetInput.retrieveSchema( meta.getNamedClusterResolver().getNamedClusterServiceLocator(),
+//        getNamedCluster(), inputFileName );
+//
+//    if ( meta.isIgnoreEmptyFolder() && ( actualFileFields.isEmpty() ) ) {
+//      data.splits = new ArrayList<>();
+//      logBasic( "No Parquet input files found." );
+//    } else {
+//      Map<String, IParquetInputField> fieldNamesToTypes = actualFileFields.stream().collect(
+//        Collectors.toMap( IParquetInputField::getFormatFieldName, Function.identity() ) );
+//      for ( ParquetInputField f : meta.getInputFields() ) {
+//        if ( fieldNamesToTypes.containsKey( f.getFormatFieldName() ) ) {
+//          if ( f.getFormatType() == 0 ) {
+//            f.setFormatType( fieldNamesToTypes.get( f.getFormatFieldName() ).getFormatType() );
+//          }
+//          f.setPrecision( fieldNamesToTypes.get( f.getFormatFieldName() ).getPrecision() );
+//          f.setScale( fieldNamesToTypes.get( f.getFormatFieldName() ).getScale() );
+//        }
+//      }
+//
+//      data.input.setSchema( createSchemaFromMeta( meta ) );
+//      data.input.setInputFile( inputFileName );
+//      data.input.setSplitSize( SPLIT_SIZE );
+//
+//      data.splits = data.input.getSplits();
+//      logDebug( "Input split count: {0}", data.splits.size() );
+//    }
+//    data.currentSplit = 0;
+//  }
+//
+//  private NamedCluster getNamedCluster() {
+//    return meta.getNamedClusterResolver().resolveNamedCluster( environmentSubstitute( meta.getFilename() ) );
+//  }
+//
+//
+//  void openReader( ParquetInputData data ) throws Exception {
+//    logDebug( "Open split {0}", data.currentSplit );
+//    IPentahoInputSplit sp = data.splits.get( data.currentSplit );
+//    data.reader = data.input.createRecordReader( sp );
+//    data.rowIterator = data.reader.iterator();
+//  }
+//
+//  @Override
+//  protected boolean init() {
+//    return true;
+//  }
+//
+//  @Override
+//  protected IBaseFileInputReader createReader( ParquetInputMeta meta, ParquetInputData data, FileObject file )
+//    throws Exception {
+//    return null;
+//  }
+//
+//  public static List<? extends IParquetInputField> retrieveSchema(
+//    NamedClusterServiceLocator namedClusterServiceLocator,
+//    NamedCluster namedCluster, String path ) throws Exception {
+//    FormatService formatService = namedClusterServiceLocator.getService( namedCluster, FormatService.class );
+//    IPentahoParquetInputFormat in = formatService.createInputFormat( IPentahoParquetInputFormat.class, namedCluster );
+//    FileObject inputFileObject = KettleVFS.getFileObject( path );
+//    if ( AliasedFileObject.isAliasedFile( inputFileObject ) ) {
+//      path = ( (AliasedFileObject) inputFileObject ).getOriginalURIString();
+//    }
+//    return in.readSchema( path );
+//  }
+//
+//  public static List<IParquetInputField> createSchemaFromMeta( ParquetInputMetaBase meta ) {
+//    List<IParquetInputField> fields = new ArrayList<>();
+//    for ( ParquetInputField f : meta.getInputFields() ) {
+//      fields.add( f );
+//    }
+//    return fields;
+//  }
+}

@@ -34,6 +34,11 @@
     <argument ref="namedClusterResolver"/>
     <pen:di-plugin type="org.pentaho.di.core.plugins.StepPluginType"/>
   </bean>
+  <bean id="WaterlineCatalogReaderMeta" class="org.pentaho.big.data.kettle.plugins.formats.impl.waterline.WaterlineCatalogReaderMeta" scope="prototype">
+    <argument ref="namedClusterResolver" />
+    <argument ref="namedClusterService" />
+    <pen:di-plugin type="org.pentaho.di.core.plugins.StepPluginType"/>
+  </bean>
 
   <reference id="namedClusterService" interface="org.pentaho.hadoop.shim.api.cluster.NamedClusterService"/>
   <reference id="namedClusterServiceLocator" interface="org.pentaho.hadoop.shim.api.cluster.NamedClusterServiceLocator"/>
