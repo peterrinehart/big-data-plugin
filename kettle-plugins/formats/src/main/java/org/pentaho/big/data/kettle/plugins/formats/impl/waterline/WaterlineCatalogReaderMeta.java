@@ -23,19 +23,26 @@ package org.pentaho.big.data.kettle.plugins.formats.impl.waterline;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.vfs2.FileName;
+import org.pentaho.big.data.kettle.plugins.formats.FormatInputFile;
 import org.pentaho.big.data.kettle.plugins.formats.impl.NamedClusterResolver;
 import org.pentaho.big.data.kettle.plugins.formats.impl.parquet.input.ParquetInput;
+import org.pentaho.big.data.kettle.plugins.formats.impl.parquet.input.ParquetInputData;
 import org.pentaho.big.data.kettle.plugins.formats.impl.parquet.input.ParquetInputMeta;
+import org.pentaho.big.data.kettle.plugins.formats.parquet.ParquetTypeConverter;
 import org.pentaho.big.data.kettle.plugins.formats.parquet.input.ParquetInputField;
 import org.pentaho.big.data.kettle.plugins.hdfs.trans.HadoopFileMeta;
 import org.pentaho.di.core.CheckResultInterface;
+import org.pentaho.di.core.Const;
 import org.pentaho.di.core.annotations.Step;
+import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.encryption.Encr;
 import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.fileinput.FileInputList;
 import org.pentaho.di.core.injection.Injection;
 import org.pentaho.di.core.injection.InjectionSupported;
 import org.pentaho.di.core.row.RowMetaInterface;
+import org.pentaho.di.core.row.value.ValueMetaFactory;
 import org.pentaho.di.core.util.GenericStepData;
 import org.pentaho.di.core.util.Utils;
 import org.pentaho.di.core.variables.VariableSpace;
@@ -53,6 +60,7 @@ import org.pentaho.di.trans.steps.fileinput.text.TextFileInputMeta;
 import org.pentaho.hadoop.shim.api.cluster.NamedCluster;
 import org.pentaho.hadoop.shim.api.cluster.NamedClusterService;
 import org.pentaho.hadoop.shim.api.format.IParquetInputField;
+import org.pentaho.hadoop.shim.api.format.ParquetSpec;
 import org.pentaho.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
@@ -78,6 +86,8 @@ public class WaterlineCatalogReaderMeta extends TextFileInputMeta implements Had
   public static final String S3_SOURCE_FILE = "S3-SOURCE-FILE-";
   public static final String S3_DEST_FILE = "S3-DEST-FILE-";
 
+  public ParquetInputField[] parquetInputFields;
+
   /**
    * The environment of the selected file/folder
    */
@@ -96,7 +106,7 @@ public class WaterlineCatalogReaderMeta extends TextFileInputMeta implements Had
 
   //@Injection( name = FILE_NAME ) private String fileName;
 
-  private List< ? extends IParquetInputField> parquetInputFields;
+ // private List< ? extends IParquetInputField> parquetInputFields;
 
   private NamedClusterResolver namedClusterResolver;
   private NamedClusterService namedClusterService;
@@ -117,7 +127,7 @@ public class WaterlineCatalogReaderMeta extends TextFileInputMeta implements Had
 //  }
 
   // TODO:
-  //  1) add logic to run different getfields code for pqt
+  //  1) save/retrieve parquet fields from xml
   //  2) add and test logic to run different step for pqt
   //  3) clean up
 
@@ -140,9 +150,13 @@ public class WaterlineCatalogReaderMeta extends TextFileInputMeta implements Had
     super.check( remarks, transMeta, stepMeta, prev, input, output, info, space, repository, metaStore );
   }
 
-//  @Override public StepDataInterface getStepData() {
-//    return new GenericStepData();
-//  }
+  @Override public StepDataInterface getStepData() {
+    if ( getFilename().endsWith( ".pqt" ) ) {
+      return new ParquetInputData();
+    } else {
+      return super.getStepData();
+    }
+  }
 
   @Override public String getDialogClassName() {
     return "org.pentaho.big.data.kettle.plugins.formats.impl.waterline.WaterlineCatalogReaderDialog";
@@ -167,41 +181,43 @@ public class WaterlineCatalogReaderMeta extends TextFileInputMeta implements Had
 
   protected ParquetInputMeta getParquetInputMeta() {
     ParquetInputMeta parquetInputMeta = new ParquetInputMeta( getNamedClusterResolver() );
+    parquetInputMeta.allocateFiles( 1 );
     parquetInputMeta.setFilename( getFilename() );
-    populateParquetInputFields( parquetInputMeta );
+    //populateParquetInputFields( parquetInputMeta );
+    parquetInputMeta.setInputFields( parquetInputFields );
     return parquetInputMeta;
   }
 
-  private List<? extends IParquetInputField> getInputFieldsFromParquetFile( boolean failQuietly ) {
-    String parquetFileName = getFilename();
-    List<? extends IParquetInputField> inputFields = null;
-    try {
-      inputFields = ParquetInput.retrieveSchema( this.getNamedClusterResolver().getNamedClusterServiceLocator(),
-        this.getNamedClusterResolver().resolveNamedCluster( parquetFileName ), parquetFileName );
-    } catch ( Exception ex ) {
-      if ( !failQuietly ) {
-        logError( "Error getting fields from Parquet file", ex );
-      }
-    }
-    return inputFields;
-  }
+//  private List<? extends IParquetInputField> getInputFieldsFromParquetFile( boolean failQuietly ) {
+//    String parquetFileName = getFilename();
+//    List<? extends IParquetInputField> inputFields = null;
+//    try {
+//      inputFields = ParquetInput.retrieveSchema( this.getNamedClusterResolver().getNamedClusterServiceLocator(),
+//        this.getNamedClusterResolver().resolveNamedCluster( parquetFileName ), parquetFileName );
+//    } catch ( Exception ex ) {
+//      if ( !failQuietly ) {
+//        logError( "Error getting fields from Parquet file", ex );
+//      }
+//    }
+//    return inputFields;
+//  }
 
-  private void populateParquetInputFields( ParquetInputMeta meta ) {
-    List<? extends IParquetInputField> actualParquetFileInputFields = getInputFieldsFromParquetFile( false );
-
-    int nrFields = actualParquetFileInputFields.size();
-    meta.setInputFields( new ParquetInputField[ nrFields ] );
-    int i = 0;
-    for ( IParquetInputField fileField : actualParquetFileInputFields ) {
-      ParquetInputField field = new ParquetInputField();
-      field.setFormatFieldName( fileField.getFormatFieldName() );
-      field.setFormatType( fileField.getFormatType() );
-      field.setPentahoFieldName( fileField.getFormatFieldName() );
-      field.setPentahoType( fileField.getPentahoType() );
-      field.setStringFormat( fileField.getStringFormat() );
-      meta.inputFields[ i++ ] = field;
-    }
-  }
+//  private void populateParquetInputFields( ParquetInputMeta meta ) {
+//    List<? extends IParquetInputField> actualParquetFileInputFields = getInputFieldsFromParquetFile( false );
+//
+//    int nrFields = actualParquetFileInputFields.size();
+//    meta.setInputFields( new ParquetInputField[ nrFields ] );
+//    int i = 0;
+//    for ( IParquetInputField fileField : actualParquetFileInputFields ) {
+//      ParquetInputField field = new ParquetInputField();
+//      field.setFormatFieldName( fileField.getFormatFieldName() );
+//      field.setFormatType( fileField.getFormatType() );
+//      field.setPentahoFieldName( fileField.getFormatFieldName() );
+//      field.setPentahoType( fileField.getPentahoType() );
+//      field.setStringFormat( fileField.getStringFormat() );
+//      meta.inputFields[ i++ ] = field;
+//    }
+//  }
 
   public NamedClusterResolver getNamedClusterResolver() {
     return namedClusterResolver;
@@ -312,14 +328,6 @@ public class WaterlineCatalogReaderMeta extends TextFileInputMeta implements Had
     return path;
   }
 
-//  public void setVariableSpace( VariableSpace variableSpace ) {
-//    this.variableSpace = variableSpace;
-//  }
-//
-//  public NamedClusterService getNamedClusterService() {
-//    return namedClusterService;
-//  }
-
   @Override
   public FileInputList getFileInputList( VariableSpace space ) {
     inputFiles.normalizeAllocation( inputFiles.fileName.length );
@@ -381,6 +389,118 @@ public class WaterlineCatalogReaderMeta extends TextFileInputMeta implements Had
       return source; // if this is non-parseable as a uri just return the source without changing it.
     }
     return source; // Just for the compiler should NEVER hit this code
+  }
+
+  @Override
+  public String getXML() {
+    StringBuilder retval = new StringBuilder( 1500 );
+    retval.append( super.getXML() );
+
+    retval.append( "    <parquet_fields>" ).append( Const.CR );
+    for ( int i = 0; i < parquetInputFields.length; i++ ) {
+      ParquetInputField field = parquetInputFields[ i ];
+      retval.append( "      <field>" ).append( Const.CR );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "parquet_path", field.getFormatFieldName() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "parquet_field_name", field.getPentahoFieldName() ) );
+      retval.append( "        " ).append( XMLHandler.addTagValue( "parquet_field_type", field.getTypeDesc() ) );
+      ParquetSpec.DataType parquetType = field.getParquetType();
+      if ( parquetType != null  && !parquetType.equals( ParquetSpec.DataType.NULL ) ) {
+        retval.append( "        " )
+          .append( XMLHandler.addTagValue( "parquet_type", parquetType.getName() ) );
+      } else {
+        retval.append( "        " )
+          .append( XMLHandler.addTagValue( "parquet_type", ParquetTypeConverter.convertToParquetType( field.getTypeDesc() ) ) );
+      }
+      if ( field.getStringFormat() != null ) {
+        retval.append( "        " ).append( XMLHandler.addTagValue( "parquet_format", field.getStringFormat() ) );
+      }
+      retval.append( "      </field>" ).append( Const.CR );
+    }
+    retval.append( "    </parquet_fields>" ).append( Const.CR );
+
+    return retval.toString();
+  }
+
+  @Override
+  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
+    throws KettleException {
+    try {
+      super.saveRep( rep, metaStore, id_transformation, id_step );
+
+      for ( int i = 0; i < parquetInputFields.length; i++ ) {
+        ParquetInputField field = parquetInputFields[ i ];
+
+        rep.saveStepAttribute( id_transformation, id_step, i, "parquet_path", field.getFormatFieldName() );
+        rep.saveStepAttribute( id_transformation, id_step, i, "parquet_field_name", field.getPentahoFieldName() );
+        rep.saveStepAttribute( id_transformation, id_step, i, "parquet_field_type", field.getTypeDesc() );
+        ParquetSpec.DataType parquetType = field.getParquetType();
+        if ( parquetType != null  && !parquetType.equals( ParquetSpec.DataType.NULL ) ) {
+          rep.saveStepAttribute( id_transformation, id_step, i, "parquet_type", parquetType.getName() );
+        } else {
+          rep.saveStepAttribute( id_transformation, id_step, i, "parquet_type", ParquetTypeConverter.convertToParquetType( field.getTypeDesc() ) );
+        }
+        if ( field.getStringFormat() != null ) {
+          rep.saveStepAttribute( id_transformation, id_step, i, "parquet_format", field.getStringFormat() );
+        }
+      }
+    } catch ( Exception e ) {
+      throw new KettleException( "Unable to save step information to the repository for id_step=" + id_step, e );
+    }
+  }
+
+  @Override
+  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws KettleXMLException {
+    super.loadXML( stepnode, databases, metaStore );
+    Node parquetFieldsNode = XMLHandler.getSubNode( stepnode, "parquet_fields" );
+    int nrParquetfields = XMLHandler.countNodes( parquetFieldsNode, "field" );
+
+    this.parquetInputFields = new ParquetInputField[ nrParquetfields ];
+    for ( int i = 0; i < nrParquetfields; i++ ) {
+      Node fnode = XMLHandler.getSubNodeByNr( parquetFieldsNode, "field", i );
+
+      ParquetInputField field = new ParquetInputField();
+      field.setFormatFieldName( XMLHandler.getTagValue( fnode, "parquet_path" ) );
+      field.setPentahoFieldName( XMLHandler.getTagValue( fnode, "parquet_field_name" ) );
+      field.setPentahoType( ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "parquet_field_type" ) ) );
+      String parquetType = XMLHandler.getTagValue( fnode, "parquet_type" );
+      if ( parquetType != null && !parquetType.equalsIgnoreCase( "null" ) ) {
+        field.setParquetType( parquetType );
+      } else {
+        field.setParquetType( ParquetTypeConverter.convertToParquetType( field.getPentahoType() ) );
+      }
+
+      String stringFormat = XMLHandler.getTagValue( fnode, "parquet_format" );
+      field.setStringFormat( stringFormat == null ? "" : stringFormat );
+      this.parquetInputFields[ i ] = field;
+    }
+  }
+
+  @Override
+  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
+    throws KettleException {
+    try {
+      super.readRep( rep, metaStore, id_step, databases );
+
+      int nrfields = rep.countNrStepAttributes( id_step, "parquet_field_name" );
+      this.parquetInputFields = new ParquetInputField[ nrfields ];
+      for ( int i = 0; i < nrfields; i++ ) {
+        ParquetInputField field = new ParquetInputField();
+        field.setFormatFieldName( rep.getStepAttributeString( id_step, i, "parquet_path" ) );
+        field.setPentahoFieldName( rep.getStepAttributeString( id_step, i, "parquet_field_name" ) );
+        field.setPentahoType( rep.getStepAttributeString( id_step, i, "parquet_field_type" ) );
+        String parquetType = rep.getStepAttributeString( id_step, i, "parquet_type" );
+        if ( parquetType != null && !parquetType.equalsIgnoreCase( "null" ) ) {
+          field.setParquetType( parquetType );
+        } else {
+          field.setParquetType( ParquetTypeConverter.convertToParquetType( field.getPentahoType() ) );
+        }
+        String stringFormat = rep.getStepAttributeString( id_step, i, "parquet_format" );
+        field.setStringFormat( stringFormat == null ? "" : stringFormat );
+        this.parquetInputFields[ i ] = field;
+      }
+    } catch ( Exception e ) {
+      throw new KettleException( "Unexpected error reading step information from the repository", e );
+    }
   }
 
 }

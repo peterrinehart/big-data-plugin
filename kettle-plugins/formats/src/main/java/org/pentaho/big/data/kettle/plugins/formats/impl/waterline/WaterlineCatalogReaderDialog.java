@@ -22,6 +22,7 @@
 package org.pentaho.big.data.kettle.plugins.formats.impl.waterline;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
@@ -62,6 +63,8 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
+import org.pentaho.big.data.kettle.plugins.formats.impl.parquet.input.ParquetInput;
+import org.pentaho.big.data.kettle.plugins.formats.parquet.input.ParquetInputField;
 import org.pentaho.big.data.kettle.plugins.hdfs.trans.HadoopFileInputDialog;
 import org.pentaho.big.data.kettle.plugins.hdfs.trans.HadoopFileInputMeta;
 import org.pentaho.big.data.kettle.plugins.hdfs.vfs.HadoopVfsFileChooserDialog;
@@ -127,6 +130,8 @@ import org.pentaho.di.ui.trans.steps.fileinput.text.TextFileImportWizardPage1;
 import org.pentaho.di.ui.trans.steps.fileinput.text.TextFileImportWizardPage2;
 import org.pentaho.hadoop.shim.api.cluster.NamedCluster;
 import org.pentaho.hadoop.shim.api.cluster.NamedClusterService;
+import org.pentaho.hadoop.shim.api.format.IParquetInputField;
+import org.pentaho.hadoop.shim.api.format.ParquetSpec;
 import org.pentaho.metastore.api.exceptions.MetaStoreException;
 import org.pentaho.vfs.ui.CustomVfsUiPanel;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
@@ -312,6 +317,8 @@ public class WaterlineCatalogReaderDialog extends BaseStepDialog implements Step
   protected boolean firstClickOnDateLocale;
 
   private final NamedClusterService namedClusterService;
+
+  private ParquetInputField[] parquetInputFields;
 
   public WaterlineCatalogReaderDialog( Shell parent, Object in, TransMeta transMeta, String sname ) {
     super( parent, (BaseStepMeta) in, transMeta, sname );
@@ -2054,6 +2061,7 @@ public class WaterlineCatalogReaderDialog extends BaseStepDialog implements Step
 
     logDebug( "getting fields info..." );
     getFieldsData( in, false );
+    parquetInputFields = in.parquetInputFields;
 
     if ( in.getEncoding() != null ) {
       wEncoding.setText( in.getEncoding() );
@@ -2315,6 +2323,7 @@ public class WaterlineCatalogReaderDialog extends BaseStepDialog implements Step
 
       ( meta.inputFields )[ i ] = field;
     }
+    meta.parquetInputFields = parquetInputFields;
 
     for ( int i = 0; i < nrfilters; i++ ) {
       TableItem item = wFilter.getNonEmpty( i );
@@ -2350,11 +2359,49 @@ public class WaterlineCatalogReaderDialog extends BaseStepDialog implements Step
   }
 
   private void get() {
-    if ( wFiletype.getText().equalsIgnoreCase( "CSV" ) ) {
+    if ( wFilenameList.getItem( 0, 2 ).endsWith( ".pqt" ) ) {
+      getParquet();
+    } else if ( wFiletype.getText().equalsIgnoreCase( "CSV" ) ) {
       getCSV();
     } else {
       getFixed();
     }
+  }
+
+  private void getParquet() {
+    WaterlineCatalogReaderMeta meta = new WaterlineCatalogReaderMeta();
+    getInfo( meta );
+    FileInputList parquetFileList = meta.getTextFileList( transMeta );
+    String parquetFileName = parquetFileList.getFileStrings()[ 0 ];
+    List<? extends IParquetInputField> inputFields = null;
+    try {
+      inputFields = ParquetInput.retrieveSchema( input.getNamedClusterResolver().getNamedClusterServiceLocator(),
+        input.getNamedClusterResolver().resolveNamedCluster( parquetFileName ), parquetFileName );
+    } catch ( Exception ex ) {
+        logError( "Error loading parquet schema", ex );
+        return;
+    }
+    if ( null != inputFields && inputFields.size() > 0 ) {
+      meta.inputFields = new BaseFileField[ inputFields.size() ];
+      parquetInputFields = new ParquetInputField[ inputFields.size() ];
+      for ( int i = 0; i < inputFields.size(); i++ ) {
+        BaseFileField baseFileField = new BaseFileField();
+        ParquetInputField parquetInputField = new ParquetInputField();
+        baseFileField.setName( concatenateParquetNameAndType( inputFields.get( i ) ) );
+        baseFileField.setFormat( inputFields.get( i ).getStringFormat() );
+        baseFileField.setType( inputFields.get( i ).getPentahoType() );
+        parquetInputField.setFormatFieldName( extractFieldName( inputFields.get( i ).getFormatFieldName() ) );
+        parquetInputField.setName( inputFields.get( i ).getFormatFieldName() );
+        parquetInputField.setFormatType( inputFields.get( i ).getFormatType() );
+        parquetInputField.setPentahoFieldName( inputFields.get( i ).getPentahoFieldName() );
+        parquetInputField.setPentahoType( inputFields.get( i ).getPentahoType() );
+        parquetInputField.setStringFormat( inputFields.get( i ).getStringFormat() );
+        meta.inputFields[ i ] = baseFileField;
+        parquetInputFields[ i ] = parquetInputField;
+      }
+    }
+    wFields.table.removeAll();
+    getFieldsData( meta, true );
   }
 
   // Get the data layout
@@ -3123,5 +3170,32 @@ public class WaterlineCatalogReaderDialog extends BaseStepDialog implements Step
         log.logError( BaseMessages.getString( PKG, "HadoopFileInputDialog.FileBrowser.FileSystemException" ) );
       }
     }
+  }
+
+  /**
+   * this method must be changed only with change {@link #extractParquetType(String)}
+   * since this method converts the field for show user and the extract methods myst convert to internal format
+   */
+  private String concatenateParquetNameAndType( IParquetInputField field ) {
+    String typeName;
+    ParquetSpec.DataType parquetDataType = ParquetSpec.DataType.getDataType( field.getFormatType() );
+    if ( parquetDataType == null ) {
+      typeName = "unknown";
+    } else {
+      typeName = ParquetSpec.DataType.getDataType( field.getFormatType() ).getName();
+    }
+    return field.getFormatFieldName() + " (" + typeName + ")";
+  }
+
+  /**
+   * Get the field name from the UI path column
+   *
+   * @see #concatenateParquetNameAndType(IParquetInputField)
+   */
+  private String extractFieldName( String parquetNameTypeFromUI ) {
+    if ( parquetNameTypeFromUI != null ) {
+      return StringUtils.substringBefore( parquetNameTypeFromUI, "(" ).trim();
+    }
+    return parquetNameTypeFromUI;
   }
 }
