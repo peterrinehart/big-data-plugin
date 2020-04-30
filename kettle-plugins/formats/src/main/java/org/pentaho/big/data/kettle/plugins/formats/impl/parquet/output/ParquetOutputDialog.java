@@ -101,7 +101,7 @@ public class ParquetOutputDialog extends BaseParquetStepDialog<ParquetOutputMeta
   private Button wSpecifyDateTimeFormat;
   private ComboVar wDateTimeFormat;
 
-  private static final ParquetSpec.DataType[] SUPPORTED_PARQUET_TYPES = {
+  public static final ParquetSpec.DataType[] SUPPORTED_PARQUET_TYPES = {
     ParquetSpec.DataType.BINARY,
     ParquetSpec.DataType.BOOLEAN,
     ParquetSpec.DataType.DATE,
@@ -456,7 +456,7 @@ public class ParquetOutputDialog extends BaseParquetStepDialog<ParquetOutputMeta
     }
   }
 
-  private void saveOutputFields( TableView wFields, ParquetOutputMeta meta ) {
+  public void saveOutputFields( TableView wFields, ParquetOutputMeta meta ) {
     int nrFields = wFields.nrNonEmpty();
 
     List<ParquetOutputField> outputFields = new ArrayList<>();
@@ -491,7 +491,7 @@ public class ParquetOutputDialog extends BaseParquetStepDialog<ParquetOutputMeta
     meta.setOutputFields( outputFields );
   }
 
-  private void populateFieldsUI( ParquetOutputMeta meta, TableView wOutputFields ) {
+  public void populateFieldsUI( ParquetOutputMeta meta, TableView wOutputFields ) {
     populateFieldsUI( meta.getOutputFields(), wOutputFields, ( field, item ) -> {
       int i = 1;
       item.setText( i++, coalesce( field.getFormatFieldName() ) );
@@ -514,7 +514,7 @@ public class ParquetOutputDialog extends BaseParquetStepDialog<ParquetOutputMeta
     } );
   }
 
-  private void populateFieldsUI( List<ParquetOutputField> fields, TableView wFields, BiConsumer<ParquetOutputField, TableItem> converter ) {
+  public void populateFieldsUI( List<ParquetOutputField> fields, TableView wFields, BiConsumer<ParquetOutputField, TableItem> converter ) {
     for ( int i = 0; i < fields.size(); i++ ) {
       TableItem item = null;
       if ( i < wFields.table.getItemCount() ) {
@@ -526,7 +526,7 @@ public class ParquetOutputDialog extends BaseParquetStepDialog<ParquetOutputMeta
     }
   }
 
-  private void getFieldsFromPreviousStep( RowMetaInterface row, TableView tableView, int keyColumn,
+  public void getFieldsFromPreviousStep( RowMetaInterface row, TableView tableView, int keyColumn,
                                           int[] nameColumn, int[] dataTypeColumn, int lengthColumn,
                                           int precisionColumn, boolean optimizeWidth,
                                           TableItemInsertListener listener ) {
@@ -622,7 +622,7 @@ public class ParquetOutputDialog extends BaseParquetStepDialog<ParquetOutputMeta
     }
   }
 
-  protected void getFields() {
+  public void getFields() {
     try {
       RowMetaInterface r = transMeta.getPrevStepFields( stepname );
       if ( r != null ) {

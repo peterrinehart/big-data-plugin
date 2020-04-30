@@ -253,7 +253,7 @@ public abstract class ParquetOutputMetaBase extends BaseStepMeta implements Step
     return retval.toString();
   }
 
-  private int getParquetTypeId( String savedType ) {
+  public int getParquetTypeId( String savedType ) {
     int parquetTypeId = 0;
     try {
       parquetTypeId = Integer.parseInt( savedType );

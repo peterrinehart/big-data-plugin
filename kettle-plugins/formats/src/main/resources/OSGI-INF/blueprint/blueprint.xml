@@ -40,6 +40,14 @@
     <pen:di-plugin type="org.pentaho.di.core.plugins.StepPluginType"/>
   </bean>
 
+  <bean id="WaterlineCatalogWriterMeta" class="org.pentaho.big.data.kettle.plugins.formats.impl.waterline.WaterlineCatalogWriterMeta" scope="prototype">
+    <argument ref="namedClusterResolver" />
+    <argument ref="namedClusterService" />
+    <argument ref="runtimeTestActionService"/>
+    <argument ref="runtimeTester"/>
+    <pen:di-plugin type="org.pentaho.di.core.plugins.StepPluginType"/>
+  </bean>
+
   <reference id="namedClusterService" interface="org.pentaho.hadoop.shim.api.cluster.NamedClusterService"/>
   <reference id="namedClusterServiceLocator" interface="org.pentaho.hadoop.shim.api.cluster.NamedClusterServiceLocator"/>
   <reference id="runtimeTester" interface="org.pentaho.runtime.test.RuntimeTester"/>

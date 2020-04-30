@@ -113,7 +113,7 @@ public class HadoopFileOutputDialog extends BaseStepDialog implements StepDialog
   private FormData fdlFilename, fdbFilename, fdFilename;
 
   private Label wlExtension;
-  private TextVar wExtension;
+  protected TextVar wExtension;
   private FormData fdlExtension, fdExtension;
 
   private Label wlAddStepnr;
@@ -198,7 +198,7 @@ public class HadoopFileOutputDialog extends BaseStepDialog implements StepDialog
   private Text wSplitEvery;
   private FormData fdlSplitEvery, fdSplitEvery;
 
-  private TableView wFields;
+  protected TableView wFields;
   private FormData fdFields;
 
   private HadoopFileOutputMeta input;
@@ -743,6 +743,7 @@ public class HadoopFileOutputDialog extends BaseStepDialog implements StepDialog
     props.setLook( wSeparator );
     wSeparator.addModifyListener( lsMod );
     fdSeparator = new FormData();
+    fdSeparator.left = new FormAttachment( middle, 0 );
     fdSeparator.left = new FormAttachment( middle, 0 );
     fdSeparator.top = new FormAttachment( wAppend, margin );
     fdSeparator.right = new FormAttachment( wbSeparator, -margin );
@@ -1307,6 +1308,7 @@ public class HadoopFileOutputDialog extends BaseStepDialog implements StepDialog
     getData();
     activeFileNameField();
     enableParentFolder();
+    hack();
 
     shell.open();
     while ( !shell.isDisposed() ) {
@@ -1315,6 +1317,10 @@ public class HadoopFileOutputDialog extends BaseStepDialog implements StepDialog
       }
     }
     return stepname;
+  }
+
+  protected void hack() {
+    return;
   }
 
   protected void fillWithSupportedDateFormats( CCombo combo, String[] dates ) {
@@ -1633,7 +1639,7 @@ public class HadoopFileOutputDialog extends BaseStepDialog implements StepDialog
     dispose();
   }
 
-  private void get() {
+  protected void get() {
     try {
       RowMetaInterface r = transMeta.getPrevStepFields( stepname );
       if ( r != null ) {
