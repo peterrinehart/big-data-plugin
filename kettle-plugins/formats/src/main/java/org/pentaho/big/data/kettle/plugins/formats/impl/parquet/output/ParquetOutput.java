@@ -43,9 +43,9 @@ import java.io.IOException;
 
 public class ParquetOutput extends BaseStep implements StepInterface {
 
-  private ParquetOutputMeta meta;
+  protected ParquetOutputMeta meta;
 
-  private ParquetOutputData data;
+  protected ParquetOutputData data;
 
   private PvfsFileAliaser pvfsFileAliaser;
 

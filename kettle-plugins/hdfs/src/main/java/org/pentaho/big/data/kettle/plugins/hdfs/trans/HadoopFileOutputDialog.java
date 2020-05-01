@@ -109,7 +109,7 @@ public class HadoopFileOutputDialog extends BaseStepDialog implements StepDialog
 
   private Label wlFilename;
   private Button wbFilename;
-  private TextVar wFilename;
+  protected TextVar wFilename;
   private FormData fdlFilename, fdbFilename, fdFilename;
 
   private Label wlExtension;
@@ -1302,13 +1302,13 @@ public class HadoopFileOutputDialog extends BaseStepDialog implements StepDialog
 
     wTabFolder.setSelection( 0 );
 
+    hack();
     // Set the shell size, based upon previous time...
     setSize();
 
     getData();
     activeFileNameField();
     enableParentFolder();
-    hack();
 
     shell.open();
     while ( !shell.isDisposed() ) {
@@ -1564,7 +1564,7 @@ public class HadoopFileOutputDialog extends BaseStepDialog implements StepDialog
     dispose();
   }
 
-  private void getInfo( HadoopFileOutputMeta tfoi ) {
+  protected void getInfo( HadoopFileOutputMeta tfoi ) {
     String ncName = ( (HadoopFileOutputMeta) tfoi ).getSourceConfigurationName();
     String fileName = wFilename.getText();
 

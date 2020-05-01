@@ -1,6 +1,7 @@
 package org.pentaho.big.data.kettle.plugins.formats.impl.waterline;
 
 import org.pentaho.big.data.kettle.plugins.formats.impl.NamedClusterResolver;
+import org.pentaho.big.data.kettle.plugins.formats.impl.parquet.output.ParquetOutputData;
 import org.pentaho.big.data.kettle.plugins.formats.impl.parquet.output.ParquetOutputMeta;
 import org.pentaho.big.data.kettle.plugins.formats.parquet.output.ParquetOutputField;
 import org.pentaho.big.data.kettle.plugins.hdfs.trans.HadoopFileOutputMeta;
@@ -13,6 +14,13 @@ import org.pentaho.di.core.injection.InjectionSupported;
 import org.pentaho.di.core.xml.XMLHandler;
 import org.pentaho.di.repository.ObjectId;
 import org.pentaho.di.repository.Repository;
+import org.pentaho.di.trans.Trans;
+import org.pentaho.di.trans.TransMeta;
+import org.pentaho.di.trans.step.StepDataInterface;
+import org.pentaho.di.trans.step.StepInterface;
+import org.pentaho.di.trans.step.StepMeta;
+import org.pentaho.di.trans.steps.textfileoutput.TextFileOutput;
+import org.pentaho.di.trans.steps.textfileoutput.TextFileOutputData;
 import org.pentaho.hadoop.shim.api.cluster.NamedClusterService;
 import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.runtime.test.RuntimeTester;
@@ -62,12 +70,32 @@ public class WaterlineCatalogWriterMeta extends HadoopFileOutputMeta {
   }
 
   public ParquetOutputMeta getParquetOutputMeta() {
+    //this.parquetOutputMeta.
     return parquetOutputMeta;
   }
 
   public void setParquetOutputMeta(
     ParquetOutputMeta parquetOutputMeta ) {
     this.parquetOutputMeta = parquetOutputMeta;
+  }
+
+  @Override
+  public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta transMeta,
+                                Trans trans ) {
+    if ( this.getExtension().compareToIgnoreCase( "pqt" ) == 0 ) {
+      return new WaterlineParquetOutput( stepMeta, stepDataInterface, cnr, transMeta, trans );
+    } else {
+      return new TextFileOutput( stepMeta, stepDataInterface, cnr, transMeta, trans );
+    }
+  }
+
+  @Override
+  public StepDataInterface getStepData() {
+    if ( this.getExtension().compareToIgnoreCase( "pqt" ) == 0 ) {
+      return new ParquetOutputData();
+    } else {
+      return super.getStepData();
+    }
   }
 
   @Override

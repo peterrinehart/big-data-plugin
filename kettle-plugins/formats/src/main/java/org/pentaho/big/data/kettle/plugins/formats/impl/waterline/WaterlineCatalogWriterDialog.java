@@ -11,6 +11,7 @@ import org.pentaho.big.data.kettle.plugins.formats.impl.parquet.BaseParquetStepD
 import org.pentaho.big.data.kettle.plugins.formats.impl.parquet.output.ParquetOutputDialog;
 import org.pentaho.big.data.kettle.plugins.formats.impl.parquet.output.ParquetOutputMeta;
 import org.pentaho.big.data.kettle.plugins.hdfs.trans.HadoopFileOutputDialog;
+import org.pentaho.big.data.kettle.plugins.hdfs.trans.HadoopFileOutputMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.i18n.BaseMessages;
@@ -120,6 +121,19 @@ public class WaterlineCatalogWriterDialog extends HadoopFileOutputDialog {
     } else {
       super.get();
     }
+  }
+
+  @Override
+  public void getData() {
+    super.getData();
+    parquetOutputDialog.populateFieldsUI( meta.getParquetOutputMeta(), wParquetOutputFields );
+  }
+
+  @Override
+  public void getInfo( HadoopFileOutputMeta meta ) {
+    super.getInfo( meta );
+    parquetOutputDialog.saveOutputFields( wParquetOutputFields, ((WaterlineCatalogWriterMeta) meta).getParquetOutputMeta() );
+    ((WaterlineCatalogWriterMeta) meta).getParquetOutputMeta().setFilename( wFilename.getText() );
   }
 
 }
