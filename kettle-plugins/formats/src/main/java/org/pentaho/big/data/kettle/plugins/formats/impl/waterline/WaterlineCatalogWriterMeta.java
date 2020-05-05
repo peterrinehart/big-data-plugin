@@ -4,6 +4,7 @@ import org.pentaho.big.data.kettle.plugins.formats.impl.NamedClusterResolver;
 import org.pentaho.big.data.kettle.plugins.formats.impl.parquet.output.ParquetOutputData;
 import org.pentaho.big.data.kettle.plugins.formats.impl.parquet.output.ParquetOutputMeta;
 import org.pentaho.big.data.kettle.plugins.formats.parquet.output.ParquetOutputField;
+import org.pentaho.big.data.kettle.plugins.formats.parquet.output.ParquetOutputMetaBase;
 import org.pentaho.big.data.kettle.plugins.hdfs.trans.HadoopFileOutputMeta;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.annotations.Step;
@@ -70,7 +71,12 @@ public class WaterlineCatalogWriterMeta extends HadoopFileOutputMeta {
   }
 
   public ParquetOutputMeta getParquetOutputMeta() {
-    //this.parquetOutputMeta.
+    this.parquetOutputMeta.setFilename( this.getFileName().concat( "." ).concat( this.getExtension() ) );
+    this.parquetOutputMeta.setParquetVersion( ParquetOutputMetaBase.ParquetVersion.PARQUET_1.toString() );
+    this.parquetOutputMeta.setCompressionType( ParquetOutputMetaBase.CompressionType.NONE.toString() );
+    this.parquetOutputMeta.setEnableDictionary( false );
+    this.parquetOutputMeta.setDataPageSize( "1024" );
+    this.parquetOutputMeta.setOverrideOutput( true );
     return parquetOutputMeta;
   }
 

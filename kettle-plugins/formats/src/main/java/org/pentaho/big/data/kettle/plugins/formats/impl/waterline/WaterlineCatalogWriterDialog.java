@@ -29,11 +29,6 @@ public class WaterlineCatalogWriterDialog extends HadoopFileOutputDialog {
   private WaterlineCatalogWriterMeta meta;
   private TableView wParquetOutputFields;
 
-  //TODO:
-  // 1) wire gui to parquet meta (getdata and getinfo)
-  // 2) add logic for running different step for pqt vs txt
-  // 3) test
-
   public WaterlineCatalogWriterDialog( Shell parent, Object in,
                                        TransMeta transMeta, String sname ) {
     super( parent, in, transMeta, sname );
