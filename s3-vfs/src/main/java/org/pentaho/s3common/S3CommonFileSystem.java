@@ -76,15 +76,15 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
       new S3CommonFileSystemConfigBuilder( getFileSystemOptions() );
 
     Optional<? extends ConnectionDetails> defaultS3Connection = Optional.empty();
-    try {
-      defaultS3Connection =
-        connectionManager.get().getConnectionDetailsByScheme( "s3" ).stream().filter(
-          connectionDetails -> connectionDetails.getProperties().get( DEFAULT_S3_CONFIG_PROPERTY ) != null
-            && connectionDetails.getProperties().get( DEFAULT_S3_CONFIG_PROPERTY ).equalsIgnoreCase( "true" ) )
-          .findFirst();
-    } catch ( Exception ignored ) {
-      // Ignore the exception, it's OK if we can't find a default S3 connection.
-    }
+//    try {
+//      defaultS3Connection =
+//        connectionManager.get().getConnectionDetailsByScheme( "s3" ).stream().filter(
+//          connectionDetails -> connectionDetails.getProperties().get( DEFAULT_S3_CONFIG_PROPERTY ) != null
+//            && connectionDetails.getProperties().get( DEFAULT_S3_CONFIG_PROPERTY ).equalsIgnoreCase( "true" ) )
+//          .findFirst();
+//    } catch ( Exception ignored ) {
+//      // Ignore the exception, it's OK if we can't find a default S3 connection.
+//    }
 
     // If the fileSystemOptions don't contain a name, the originating url is s3:// NOT pvfs://
     // Use a specified default PVFS connection if it's available.

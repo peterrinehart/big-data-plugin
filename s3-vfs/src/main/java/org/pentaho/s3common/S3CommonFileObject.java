@@ -83,7 +83,7 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
     List<String> childrenList = new ArrayList<>();
 
     // only listing folders or the root bucket
-    if ( getType() == FileType.FOLDER || isRootBucket() ) {
+    if ( getType() == FileType.FOLDER || getType() == FileType.IMAGINARY || isRootBucket() ) {
       childrenList = getS3ObjectsFromVirtualFolder( key, bucketName );
     }
     String[] childrenArr = new String[ childrenList.size() ];
