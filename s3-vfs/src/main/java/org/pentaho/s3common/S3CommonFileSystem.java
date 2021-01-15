@@ -23,6 +23,8 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.BasicSessionCredentials;
+import com.amazonaws.auth.ContainerCredentialsProvider;
+import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfilesConfigFile;
 import com.amazonaws.client.builder.AwsClientBuilder;
@@ -76,6 +78,7 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
       new S3CommonFileSystemConfigBuilder( getFileSystemOptions() );
 
     Optional<? extends ConnectionDetails> defaultS3Connection = Optional.empty();
+
 //    try {
 //      defaultS3Connection =
 //        connectionManager.get().getConnectionDetailsByScheme( "s3" ).stream().filter(
@@ -199,9 +202,23 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
         awsAccessKeyCache = System.getProperty( S3Util.ACCESS_KEY_SYSTEM_PROPERTY );
         awsSecretKeyCache = System.getProperty( S3Util.SECRET_KEY_SYSTEM_PROPERTY );
       } catch ( Exception ex ) {
-        logger.error( "Could not get an S3Client", ex );
+        logger.warn( "Could not get an S3Client, trying EC2 container permissions next", ex );
       }
     }
+
+    // try to get permission from the EC2 container
+    if ( client == null ) {
+      try {
+        InstanceProfileCredentialsProvider instanceProfileCredentialsProvider =
+          new InstanceProfileCredentialsProvider( false );
+        client = AmazonS3ClientBuilder.standard()
+          .withCredentials( instanceProfileCredentialsProvider )
+          .build();
+      } catch ( Exception e ) {
+        logger.error( "Failed to create client with EC2 credentials", e );
+      }
+    }
+
     return client;
   }
 
