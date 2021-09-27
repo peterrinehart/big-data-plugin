@@ -219,7 +219,7 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
       || S3Util.hasChanged( awsSecretKeyCache, System.getProperty( S3Util.SECRET_KEY_SYSTEM_PROPERTY ) ) );
   }
 
-  private boolean isRegionSet() {
+  protected boolean isRegionSet() {
     //region is set if explicitly set in env variable or configuration file is explicitly set
     if ( System.getenv( S3Util.AWS_REGION ) != null || System.getenv( S3Util.AWS_CONFIG_FILE ) != null ) {
       return true;

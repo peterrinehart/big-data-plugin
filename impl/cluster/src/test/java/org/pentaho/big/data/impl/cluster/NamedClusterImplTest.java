@@ -17,66 +17,64 @@
 
 package org.pentaho.big.data.impl.cluster;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.util.Map;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.vfs2.VFS;
+import org.apache.commons.vfs2.impl.StandardFileSystemManager;
+import org.apache.commons.vfs2.provider.UriParser;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+import org.pentaho.di.core.encryption.Encr;
+import org.pentaho.di.core.encryption.TwoWayPasswordEncoderPluginType;
+import org.pentaho.di.core.exception.KettleValueException;
+import org.pentaho.di.core.osgi.api.NamedClusterSiteFile;
+import org.pentaho.di.core.osgi.impl.NamedClusterSiteFileImpl;
+import org.pentaho.di.core.plugins.PluginRegistry;
+import org.pentaho.di.core.row.RowMetaInterface;
+import org.pentaho.di.core.variables.VariableSpace;
+import org.pentaho.hadoop.shim.api.cluster.NamedCluster;
+import org.pentaho.metastore.api.IMetaStore;
+import org.pentaho.metastore.api.exceptions.MetaStoreException;
+import org.pentaho.metastore.api.security.Base64TwoWayPasswordEncoder;
+import org.pentaho.metastore.api.security.ITwoWayPasswordEncoder;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.vfs2.VFS;
-import org.apache.commons.vfs2.impl.StandardFileSystemManager;
-import org.apache.commons.vfs2.provider.UriParser;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.stubbing.Answer;
-import org.pentaho.di.core.encryption.Encr;
-import org.pentaho.di.core.encryption.TwoWayPasswordEncoderPluginType;
-import org.pentaho.di.core.osgi.api.NamedClusterSiteFile;
-import org.pentaho.di.core.osgi.impl.NamedClusterSiteFileImpl;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.hadoop.shim.api.cluster.NamedCluster;
-import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.variables.VariableSpace;
-import org.pentaho.metastore.api.IMetaStore;
-import org.pentaho.metastore.api.exceptions.MetaStoreException;
-import org.pentaho.metastore.api.security.Base64TwoWayPasswordEncoder;
-import org.pentaho.metastore.api.security.ITwoWayPasswordEncoder;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.util.Map;
 
 import static com.google.code.beanmatchers.BeanMatchers.hasValidBeanConstructor;
 import static com.google.code.beanmatchers.BeanMatchers.hasValidBeanEqualsFor;
 import static com.google.code.beanmatchers.BeanMatchers.hasValidGettersAndSetters;
 import static org.hamcrest.MatcherAssert.assertThat;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.validateMockitoUsage;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.doAnswer;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
+
 
 /**
  * Created by bryan on 7/14/15.
  */
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( { UriParser.class, VFS.class } )
+@RunWith( MockitoJUnitRunner.class )
 public class NamedClusterImplTest {
   private static final String HDFS_PREFIX = "hdfs";
 
@@ -100,15 +98,17 @@ public class NamedClusterImplTest {
   private StandardFileSystemManager fsm;
   private String fileContents1;
   private String fileContents2;
+  private MockedStatic<VFS> vfsMockedStatic;
+  private MockedStatic<UriParser> uriParserMockedStatic;
 
   @Before
   public void setup() throws Exception {
     PluginRegistry.addPluginType( TwoWayPasswordEncoderPluginType.getInstance() );
     PluginRegistry.init( false );
     Encr.init( "Kettle" );
-    mockStatic( VFS.class );
-    mockStatic( UriParser.class );
-    spy( UriParser.class );
+    vfsMockedStatic = Mockito.mockStatic( VFS.class );
+    uriParserMockedStatic = Mockito.mockStatic( UriParser.class );
+    uriParserMockedStatic.when( () -> UriParser.encode( anyString(), any( char[].class ) ) ).thenCallRealMethod();
 
     metaStore = mock( IMetaStore.class );
     variableSpace = mock( VariableSpace.class );
@@ -148,7 +148,14 @@ public class NamedClusterImplTest {
     namedCluster.addSiteFile( new NamedClusterSiteFileImpl( "hbase-site.xml", 11111L, fileContents2 ) );
 
     fsm = mock( StandardFileSystemManager.class );
-    when( VFS.getManager() ).thenReturn( fsm );
+    vfsMockedStatic.when( VFS::getManager ).thenReturn( fsm );
+  }
+
+  @After
+  public void cleanupMocks() {
+    vfsMockedStatic.close();
+    uriParserMockedStatic.close();
+    validateMockitoUsage();
   }
 
   @Test
@@ -197,7 +204,7 @@ public class NamedClusterImplTest {
   public void testArrayEnvironmentSubstitute() {
     String[] testVars = { "testVar" };
     String[] testVals = { "testVal" };
-    when( variableSpace.environmentSubstitute( testVars ) ).thenReturn( testVals );
+    Mockito.when( variableSpace.environmentSubstitute( testVars ) ).thenReturn( testVals );
     assertArrayEquals( testVals, namedCluster.environmentSubstitute( testVars ) );
   }
 
@@ -658,15 +665,15 @@ public class NamedClusterImplTest {
   private void buildExtractSchemeMocks( String prefix, String fullPath, String pathWithoutPrefix ) throws Exception {
     String[] schemes = { "hc", "hdfs", "maprfs", "wasb" };
     when( fsm.getSchemes() ).thenReturn( schemes );
-    doAnswer( buildSchemeAnswer( prefix, pathWithoutPrefix ) ).when( UriParser.class, "extractScheme",
-      eq( schemes ), eq( fullPath ), any( StringBuilder.class ) );
+    uriParserMockedStatic.when( () -> UriParser.extractScheme( eq( schemes ), eq( fullPath ), any( StringBuilder.class ) ) )
+      .thenAnswer( buildSchemeAnswer( prefix, pathWithoutPrefix ) );
   }
 
   private void buildAppendEncodedUserPassMocks( String username, String password ) throws Exception {
-    doAnswer( buildUrlEncodeAnswer( username ) ).when( UriParser.class, "appendEncoded",
-      any( StringBuilder.class ), eq( username ), any( char[].class ) );
-    doAnswer( buildUrlEncodeAnswer( password ) ).when( UriParser.class, "appendEncoded",
-      any( StringBuilder.class ), eq( password ), any( char[].class ) );
+    uriParserMockedStatic.when( () -> UriParser.appendEncoded( any( StringBuilder.class ), eq( username ), any( char[].class ) ) )
+        .thenAnswer( buildUrlEncodeAnswer( username ) );
+    uriParserMockedStatic.when( () -> UriParser.appendEncoded( any( StringBuilder.class ), eq( password ), any( char[].class ) ) )
+      .thenAnswer( buildUrlEncodeAnswer( password ) );
   }
 
   private String getSiteFileContents( NamedCluster nc, String siteFileName ) {
