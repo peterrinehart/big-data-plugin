@@ -2,7 +2,7 @@
  *
  * Pentaho Big Data
  *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2021 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -26,43 +26,51 @@ import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.impl.StandardFileSystemManager;
 import org.apache.commons.vfs2.provider.UriParser;
 import org.eclipse.swt.custom.CCombo;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.pentaho.di.core.Const;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.mockito.Matchers.eq;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * Created by bryan on 11/23/15.
  */
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( { VFS.class, UriParser.class } )
+@RunWith( MockitoJUnitRunner.class )
 public class HadoopFileOutputDialogTest {
 
   private static final String[] SCHEMES = { "hdfs", "maprfs", "mySpecialPrefix" };
   private static final String HDFS_PREFIX = "hdfs";
   private static final String MY_HOST_URL = "//myhost:8020";
   private StandardFileSystemManager fsm;
+  private MockedStatic<UriParser> uriParserMockedStatic;
+  private MockedStatic<VFS> vfsMockedStatic;
 
   @Before
   public void setUp() throws Exception {
-    mockStatic( UriParser.class );
-    mockStatic( VFS.class );
+    uriParserMockedStatic = Mockito.mockStatic( UriParser.class );
+    vfsMockedStatic = Mockito.mockStatic( VFS.class );
     fsm = mock( StandardFileSystemManager.class );
-    when( VFS.getManager() ).thenReturn( fsm );
-    when( fsm.getSchemes() ).thenReturn( SCHEMES );
+    vfsMockedStatic.when( VFS::getManager ).thenReturn( fsm );
+  }
+
+  @After
+  public void cleanup() {
+    vfsMockedStatic.close();
+    uriParserMockedStatic.close();
+    Mockito.validateMockitoUsage();
   }
 
   @Test
@@ -158,8 +166,8 @@ public class HadoopFileOutputDialogTest {
   }
 
   private void buildExtractSchemeMocks( String prefix, String fullPath, String pathWithoutPrefix ) {
-    when( UriParser.extractScheme( any( String[].class ), eq( fullPath ) ) ).thenReturn( prefix );
-    when( UriParser.extractScheme( any( String[].class ), eq( fullPath ),
+    uriParserMockedStatic.when( () -> UriParser.extractScheme( any( String[].class ), eq( fullPath ) ) ).thenReturn( prefix );
+    uriParserMockedStatic.when( () -> UriParser.extractScheme( any( String[].class ), eq( fullPath ),
       any( StringBuilder.class ) ) ).thenAnswer( buildSchemeAnswer( prefix, pathWithoutPrefix ) );
   }
 }

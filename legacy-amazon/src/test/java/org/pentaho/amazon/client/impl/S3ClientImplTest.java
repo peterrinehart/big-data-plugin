@@ -2,7 +2,7 @@
  *
  * Pentaho Big Data
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2021 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -54,7 +54,7 @@ import java.util.zip.GZIPOutputStream;
 
 @RunWith( PowerMockRunner.class )
 @PrepareForTest( S3ClientImpl.class )
-@PowerMockIgnore( "javax.management.*" )
+@PowerMockIgnore( { "javax.management.*", "jdk.internal.reflect.*" } )
 public class S3ClientImplTest {
 
   @Rule

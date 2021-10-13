@@ -62,9 +62,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.AdditionalMatchers.or;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.validateMockitoUsage;
 import static org.mockito.Mockito.verify;
@@ -109,6 +111,8 @@ public class NamedClusterImplTest {
     vfsMockedStatic = Mockito.mockStatic( VFS.class );
     uriParserMockedStatic = Mockito.mockStatic( UriParser.class );
     uriParserMockedStatic.when( () -> UriParser.encode( anyString(), any( char[].class ) ) ).thenCallRealMethod();
+    uriParserMockedStatic.when( () -> UriParser.decode( anyString() ) ).thenCallRealMethod();
+    uriParserMockedStatic.when( () -> UriParser.appendEncoded( any( StringBuilder.class ), anyString(), any( char[].class ) ) ).thenCallRealMethod();
 
     metaStore = mock( IMetaStore.class );
     variableSpace = mock( VariableSpace.class );
@@ -357,7 +361,6 @@ public class NamedClusterImplTest {
     String testHost = "${hdfsHost}";
     namedCluster.setHdfsHost( " " + testHost + " " );
     when( variableSpace.getVariable( "hdfsHost" ) ).thenReturn( "test" );
-    when( variableSpace.environmentSubstitute( namedCluster.getHdfsHost() ) ).thenReturn( "test" );
     assertEquals( "test", namedCluster.getHostNameParsed( variableSpace ) );
   }
 
@@ -391,7 +394,6 @@ public class NamedClusterImplTest {
   public void testCheckHdfsNameVariableNotNull() throws MetaStoreException {
     namedCluster.setHdfsHost( "${hdfsHost}" );
     when( variableSpace.getVariable( "hdfsHost" ) ).thenReturn( "test" );
-    when( variableSpace.environmentSubstitute( namedCluster.getHdfsHost() ) ).thenReturn( "test" );
     assertEquals( false, namedCluster.isHdfsHostEmpty( variableSpace ) );
   }
 
@@ -665,14 +667,14 @@ public class NamedClusterImplTest {
   private void buildExtractSchemeMocks( String prefix, String fullPath, String pathWithoutPrefix ) throws Exception {
     String[] schemes = { "hc", "hdfs", "maprfs", "wasb" };
     when( fsm.getSchemes() ).thenReturn( schemes );
-    uriParserMockedStatic.when( () -> UriParser.extractScheme( eq( schemes ), eq( fullPath ), any( StringBuilder.class ) ) )
+    uriParserMockedStatic.when( () -> UriParser.extractScheme( eq( schemes ), eq( fullPath ), or( isNull(), any( StringBuilder.class ) ) ) )
       .thenAnswer( buildSchemeAnswer( prefix, pathWithoutPrefix ) );
   }
 
   private void buildAppendEncodedUserPassMocks( String username, String password ) throws Exception {
-    uriParserMockedStatic.when( () -> UriParser.appendEncoded( any( StringBuilder.class ), eq( username ), any( char[].class ) ) )
+    uriParserMockedStatic.when( () -> UriParser.appendEncoded( or( isNull(), any( StringBuilder.class ) ), eq( username ), any( char[].class ) ) )
         .thenAnswer( buildUrlEncodeAnswer( username ) );
-    uriParserMockedStatic.when( () -> UriParser.appendEncoded( any( StringBuilder.class ), eq( password ), any( char[].class ) ) )
+    uriParserMockedStatic.when( () -> UriParser.appendEncoded( or( isNull(), any( StringBuilder.class ) ), eq( password ), any( char[].class ) ) )
       .thenAnswer( buildUrlEncodeAnswer( password ) );
   }
 

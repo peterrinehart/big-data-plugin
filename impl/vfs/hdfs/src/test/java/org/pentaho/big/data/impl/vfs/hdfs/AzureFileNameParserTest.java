@@ -22,25 +22,27 @@ import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.impl.StandardFileSystemManager;
 import org.apache.commons.vfs2.provider.FileNameParser;
 import org.apache.commons.vfs2.provider.UriParser;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.powermock.api.mockito.PowerMockito.doAnswer;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
-@RunWith( PowerMockRunner.class )
-@PrepareForTest( { UriParser.class, VFS.class } )
+
+@RunWith( MockitoJUnitRunner.class )
 public class AzureFileNameParserTest {
 
   private static final String BASE_PATH = "//";
@@ -51,14 +53,27 @@ public class AzureFileNameParserTest {
 
   private StandardFileSystemManager fsm;
 
+  private MockedStatic<VFS> vfsMockedStatic;
+  private MockedStatic<UriParser> uriParserMockedStatic;
+
   @Before
   public void setUp() throws Exception {
-    mockStatic( VFS.class );
-    mockStatic( UriParser.class );
-    spy( UriParser.class );
+    vfsMockedStatic = Mockito.mockStatic( VFS.class );
+    uriParserMockedStatic = Mockito.mockStatic( UriParser.class );
+    uriParserMockedStatic.when( () -> UriParser.encode( anyString(), any( char[].class ) ) ).thenCallRealMethod();
+    uriParserMockedStatic.when( () -> UriParser.decode( anyString() ) ).thenCallRealMethod();
+    uriParserMockedStatic.when( () -> UriParser.appendEncoded( any( StringBuilder.class ), anyString(), any( char[].class ) ) ).thenCallRealMethod();
+    uriParserMockedStatic.when( () -> UriParser.canonicalizePath( any( StringBuilder.class ), anyInt(), anyInt(), any( FileNameParser.class ) ) ).thenCallRealMethod();
 
     fsm = mock( StandardFileSystemManager.class );
-    when( VFS.getManager() ).thenReturn( fsm );
+    vfsMockedStatic.when( VFS::getManager ).thenReturn( fsm );
+  }
+
+  @After
+  public void cleanup() {
+    vfsMockedStatic.close();
+    uriParserMockedStatic.close();
+    Mockito.validateMockitoUsage();
   }
 
   @Test
@@ -170,7 +185,7 @@ public class AzureFileNameParserTest {
   private void buildExtractSchemeMocks( String prefix, String fullPath, String pathWithoutPrefix ) throws Exception {
     String[] schemes = { "wasb", "abfs" };
     when( fsm.getSchemes() ).thenReturn( schemes );
-    doAnswer( buildSchemeAnswer( prefix, pathWithoutPrefix ) ).when( UriParser.class, "extractScheme",
-      eq( schemes ), eq( fullPath ), any( StringBuilder.class ) );
+    uriParserMockedStatic.when( () -> UriParser.extractScheme( eq( schemes ), eq( fullPath ), any( StringBuilder.class ) ) )
+      .thenAnswer( buildSchemeAnswer( prefix, pathWithoutPrefix ) );
   }
 }

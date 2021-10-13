@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Pentaho Big Data
  * <p>
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2021 by Hitachi Vantara : http://www.pentaho.com
  * <p>
  * ******************************************************************************
  * <p>
@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -39,6 +40,7 @@ import org.apache.commons.vfs2.provider.FileNameParser;
 import org.apache.commons.vfs2.provider.url.UrlFileName;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.AdditionalMatchers;
 import org.pentaho.hadoop.shim.api.cluster.NamedClusterService;
 import org.pentaho.hadoop.shim.api.cluster.ClusterInitializationException;
 import org.pentaho.big.data.impl.vfs.hdfs.HDFSFileSystem;
@@ -79,8 +81,8 @@ public class NamedClusterProviderTest {
   public void setUp() throws MetaStoreException, ClusterInitializationException {
     when( ncService.read( eq( ncName ), eq( metastore ) ) ).thenReturn( nc );
     when( ncService.getClusterTemplate() ).thenReturn( ncTemplate );
-    when( ncTemplate.processURLsubstitution( anyString(), any( IMetaStore.class ), any( Variables.class ) ) ).thenReturn( "nc://" + ncName + path );
-    when( nc.processURLsubstitution( anyString(), any( IMetaStore.class ), any( Variables.class ) ) ).thenReturn( "nc://" + ncName + path );
+    when( ncTemplate.processURLsubstitution( anyString(), AdditionalMatchers.or( any( IMetaStore.class ), isNull() ), any( Variables.class ) ) ).thenReturn( "nc://" + ncName + path );
+    when( nc.processURLsubstitution( anyString(), AdditionalMatchers.or( any( IMetaStore.class ), isNull() ), any( Variables.class ) ) ).thenReturn( "nc://" + ncName + path );
     when( hdfsLocator.getHadoopFilesystem( any( NamedCluster.class ), any( URI.class ) ) ).thenReturn( hfs );
   }
 

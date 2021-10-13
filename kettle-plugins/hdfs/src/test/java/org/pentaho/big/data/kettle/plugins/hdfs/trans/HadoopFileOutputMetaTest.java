@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Pentaho Big Data
  * <p/>
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2021 by Hitachi Vantara : http://www.pentaho.com
  * <p/>
  * ******************************************************************************
  * <p/>
@@ -25,6 +25,7 @@ import org.jdom.filter.ElementFilter;
 import org.jdom.input.SAXBuilder;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.AdditionalMatchers;
 import org.mockito.Mockito;
 import org.pentaho.hadoop.shim.api.cluster.NamedCluster;
 import org.pentaho.hadoop.shim.api.cluster.NamedClusterService;
@@ -45,6 +46,8 @@ import java.net.URL;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
@@ -140,7 +143,7 @@ public class HadoopFileOutputMetaTest {
     Element clusterNameElement = getChildElementByTagName( fileElement, HadoopFileInputMeta.SOURCE_CONFIGURATION_NAME );
     assertEquals( TEST_CLUSTER_NAME, clusterNameElement.getValue() );
     //check that saveSource is called from TextFileOutputMeta
-    verify( spy, times( 1 ) ).saveSource( any( StringBuilder.class ), any( String.class ) );
+    verify( spy, times( 1 ) ).saveSource( any( StringBuilder.class ), or( any( String.class ), isNull() ) );
   }
 
   public Node getChildElementByTagName( String fileName ) throws Exception {
@@ -169,7 +172,7 @@ public class HadoopFileOutputMetaTest {
     //create spy to check whether saveSource now is called from readData
     spy.readData( node );
     assertEquals( TEST_CLUSTER_NAME, hadoopFileOutputMeta.getSourceConfigurationName() );
-    verify( spy, times( 1 ) ).loadSource( any( Node.class ), any( IMetaStore.class ) );
+    verify( spy, times( 1 ) ).loadSource( any( Node.class ), or( any( IMetaStore.class ), isNull() ) );
   }
 
   @Test
@@ -211,7 +214,7 @@ public class HadoopFileOutputMetaTest {
     // getting from file node cluster attribute value
     assertEquals( EMBEDDED_XML, clusterElement.getValue() );
     // check that saveSource is called from TextFileOutputMeta
-    verify( spy, times( 1 ) ).saveSource( any( StringBuilder.class ), any( String.class ) );
+    verify( spy, times( 1 ) ).saveSource( any( StringBuilder.class ), or( any( String.class ), isNull() ) );
   }
 
 
