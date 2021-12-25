@@ -37,9 +37,8 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>${slf4j.version}</version>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-slf4j-impl</artifactId>
         <scope>provided</scope>
       </dependency>
     </dependencies>
@@ -179,11 +178,6 @@
       <version>${dependency.jline.revision}</version>
     </dependency>
     <dependency>
-      <groupId>org.pentaho.di.plugins</groupId>
-      <artifactId>kettle-log4j-core</artifactId>
-      <version>${pdi.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>
     </dependency>
@@ -228,9 +222,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.pentaho</groupId>
-      <artifactId>pentaho-hadoop-shims-mapr60-package</artifactId>
-      <version>${pentaho-hadoop-shims-mapr60.version}</version>
+      <groupId>org.pentaho.hadoop.shims</groupId>
+      <artifactId>pentaho-hadoop-shims-emr521-pmr-libs</artifactId>
+      <version>${pentaho-hadoop-shims-emr521.version}</version>
       <type>zip</type>
       <scope>provided</scope>
       <exclusions>
