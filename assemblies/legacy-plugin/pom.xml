@@ -222,9 +222,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.pentaho.hadoop.shims</groupId>
-      <artifactId>pentaho-hadoop-shims-emr521-pmr-libs</artifactId>
-      <version>${pentaho-hadoop-shims-emr521.version}</version>
+      <groupId>org.pentaho</groupId>
+      <artifactId>pentaho-hadoop-shims-mapr60-package</artifactId>
+      <version>${pentaho-hadoop-shims-mapr60.version}</version>
       <type>zip</type>
       <scope>provided</scope>
       <exclusions>

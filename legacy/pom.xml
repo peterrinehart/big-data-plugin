@@ -178,7 +178,7 @@
       <version>${jline.version}</version>
     </dependency>
     <dependency>
-      <groupId>libthrift</groupId>
+      <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>
     </dependency>
     <dependency>
