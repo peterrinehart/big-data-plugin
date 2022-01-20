@@ -50,7 +50,7 @@ public class OozieServiceFactoryLoaderTest {
   @Mock private HadoopShim shim;
 
   @InjectMocks private OozieServiceFactoryLoader oozieServiceFactoryLoader;
-  
+
   @Before
   public void before() {
 
