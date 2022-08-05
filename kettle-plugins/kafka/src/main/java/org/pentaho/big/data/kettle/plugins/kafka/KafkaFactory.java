@@ -2,7 +2,7 @@
  *
  * Pentaho Data Integration
  *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2022 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -22,9 +22,6 @@
 
 package org.pentaho.big.data.kettle.plugins.kafka;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -33,7 +30,11 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.SaslConfigs;
-import org.pentaho.hadoop.shim.api.jaas.JaasConfigService;
+import org.pentaho.hadoop.shim.api.core.JaasConfigServiceCommon;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Created by rfellows on 6/2/17.
@@ -76,7 +77,7 @@ public class KafkaFactory {
     return consumerFunction.apply( kafkaConfig );
   }
 
-  public void putKerberosConfig( Map<String, Object> kafkaConfig, JaasConfigService jaasConfigService ) {
+  public void putKerberosConfig( Map<String, Object> kafkaConfig, JaasConfigServiceCommon jaasConfigService ) {
     if ( jaasConfigService.isKerberos() ) {
       kafkaConfig.put( SaslConfigs.SASL_JAAS_CONFIG, jaasConfigService.getJaasConfig() );
       kafkaConfig.put( CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT" );

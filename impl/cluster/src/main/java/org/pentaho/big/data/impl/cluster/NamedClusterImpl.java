@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Pentaho Big Data
  * <p>
- * Copyright (C) 2002-2021 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2022 by Hitachi Vantara : http://www.pentaho.com
  * <p>
  * ******************************************************************************
  * <p>
@@ -55,6 +55,7 @@ import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.variables.Variables;
 import org.pentaho.di.core.xml.XMLHandler;
 import org.pentaho.hadoop.shim.api.cluster.NamedCluster;
+import org.pentaho.hadoop.shim.api.core.NamedClusterCommon;
 import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.metastore.api.security.Base64TwoWayPasswordEncoder;
 import org.pentaho.metastore.api.security.ITwoWayPasswordEncoder;
@@ -69,7 +70,7 @@ import org.w3c.dom.Node;
 import com.google.common.annotations.VisibleForTesting;
 
 @MetaStoreElementType( name = "NamedCluster", description = "A NamedCluster" )
-public class NamedClusterImpl implements NamedCluster, NamedClusterOsgi {
+public class NamedClusterImpl implements NamedCluster, NamedClusterCommon, NamedClusterOsgi {
 
   public static final String HDFS_SCHEME = "hdfs";
   public static final String MAPRFS_SCHEME = "maprfs";

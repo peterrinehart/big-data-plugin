@@ -28,20 +28,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.pentaho.di.core.logging.KettleLogStore;
-import org.pentaho.hadoop.shim.api.cluster.NamedCluster;
-import org.pentaho.hadoop.shim.api.cluster.NamedClusterService;
-import org.pentaho.hadoop.shim.api.cluster.NamedClusterServiceLocator;
-import org.pentaho.hadoop.shim.api.cluster.ClusterInitializationException;
-import org.pentaho.hadoop.shim.api.jaas.JaasConfigService;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.attributes.metastore.EmbeddedMetaStore;
+import org.pentaho.di.core.logging.KettleLogStore;
+import org.pentaho.di.core.namedcluster.NamedClusterManager;
+import org.pentaho.di.core.namedcluster.model.NamedCluster;
 import org.pentaho.di.core.xml.XMLHandler;
 import org.pentaho.di.repository.Repository;
 import org.pentaho.di.repository.StringObjectId;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.steps.named.cluster.NamedClusterEmbedManager;
+import org.pentaho.hadoop.shim.api.core.JaasConfigServiceCommon;
+import org.pentaho.hadoop.shim.api.core.NamedClusterServiceLocatorCommon;
 import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.metastore.locator.api.MetastoreLocator;
 import org.w3c.dom.Node;
@@ -78,7 +77,7 @@ import static org.pentaho.big.data.kettle.plugins.kafka.KafkaProducerOutputMeta.
 public class KafkaProducerOutputMetaTest {
   @Mock IMetaStore metastore;
   @Mock Repository rep;
-  @Mock NamedClusterService namedClusterService;
+  @Mock NamedClusterManager namedClusterService;
   @Mock MetastoreLocator metastoreLocator;
 
   @Before
@@ -251,7 +250,7 @@ public class KafkaProducerOutputMetaTest {
     NamedCluster namedCluster = mock( NamedCluster.class );
     when( namedCluster.getKafkaBootstrapServers() ).thenReturn( "server:11111" );
 
-    NamedClusterService namedClusterService = mock( NamedClusterService.class );
+    NamedClusterManager namedClusterService = mock( NamedClusterManager.class );
     when( namedClusterService.getNamedClusterByName( eq( "my_cluster" ), any( IMetaStore.class ) ) )
         .thenReturn( namedCluster );
 
@@ -276,7 +275,7 @@ public class KafkaProducerOutputMetaTest {
     when( namedCluster.getKafkaBootstrapServers() ).thenReturn( "server:11111" );
 
     EmbeddedMetaStore embeddedMetaStore = mock( EmbeddedMetaStore.class );
-    NamedClusterService namedClusterService = mock( NamedClusterService.class );
+    NamedClusterManager namedClusterService = mock( NamedClusterManager.class );
     when( namedClusterService.getNamedClusterByName( "my_cluster", embeddedMetaStore ) )
       .thenReturn( namedCluster );
 
@@ -300,13 +299,13 @@ public class KafkaProducerOutputMetaTest {
 
   @Test
   public void testGetJaasConfig() throws Exception {
-    NamedClusterServiceLocator namedClusterLocator = mock( NamedClusterServiceLocator.class );
-    NamedClusterService namedClusterService = mock( NamedClusterService.class );
-    JaasConfigService jaasConfigService = mock( JaasConfigService.class );
+    NamedClusterServiceLocatorCommon namedClusterLocator = mock( NamedClusterServiceLocatorCommon.class );
+    NamedClusterManager namedClusterService = mock( NamedClusterManager.class );
+    JaasConfigServiceCommon jaasConfigService = mock( JaasConfigServiceCommon.class );
     NamedCluster namedCluster =  mock( NamedCluster.class );
     when( metastoreLocator.getMetastore() ).thenReturn( metastore );
     when( namedClusterService.getNamedClusterByName( "kurtsCluster", metastore ) ).thenReturn( namedCluster );
-    when( namedClusterLocator.getService( namedCluster, JaasConfigService.class ) ).thenReturn( jaasConfigService );
+    when( namedClusterLocator.getService( namedCluster, JaasConfigServiceCommon.class ) ).thenReturn( jaasConfigService );
     KafkaProducerOutputMeta inputMeta = new KafkaProducerOutputMeta();
     inputMeta.setNamedClusterServiceLocator( namedClusterLocator );
     inputMeta.setNamedClusterService( namedClusterService );
@@ -317,13 +316,13 @@ public class KafkaProducerOutputMetaTest {
 
   @Test
   public void testGetJaasConfigException() throws Exception {
-    NamedClusterServiceLocator namedClusterLocator = mock( NamedClusterServiceLocator.class );
-    NamedClusterService namedClusterService = mock( NamedClusterService.class );
+    NamedClusterServiceLocatorCommon namedClusterLocator = mock( NamedClusterServiceLocatorCommon.class );
+    NamedClusterManager namedClusterService = mock( NamedClusterManager.class );
     NamedCluster namedCluster =  mock( NamedCluster.class );
     when( metastoreLocator.getMetastore() ).thenReturn( metastore );
     when( namedClusterService.getNamedClusterByName( "kurtsCluster", metastore ) ).thenReturn( namedCluster );
-    when( namedClusterLocator.getService( namedCluster, JaasConfigService.class ) )
-      .thenThrow( new ClusterInitializationException( new Exception( "oops" ) ) );
+    when( namedClusterLocator.getService( namedCluster, JaasConfigServiceCommon.class ) )
+      .thenThrow( new Exception( new Exception( "oops" ) ) );
     KafkaProducerOutputMeta inputMeta = new KafkaProducerOutputMeta();
     inputMeta.setNamedClusterServiceLocator( namedClusterLocator );
     inputMeta.setNamedClusterService( namedClusterService );

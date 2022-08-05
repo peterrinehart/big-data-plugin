@@ -28,17 +28,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.pentaho.hadoop.shim.api.cluster.NamedCluster;
-import org.pentaho.hadoop.shim.api.cluster.NamedClusterService;
-import org.pentaho.hadoop.shim.api.cluster.NamedClusterServiceLocator;
-import org.pentaho.hadoop.shim.api.cluster.ClusterInitializationException;
-import org.pentaho.hadoop.shim.api.jaas.JaasConfigService;
 import org.pentaho.di.core.CheckResultInterface;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.KettleClientEnvironment;
 import org.pentaho.di.core.ProgressMonitorListener;
 import org.pentaho.di.core.Props;
 import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.namedcluster.NamedClusterManager;
+import org.pentaho.di.core.namedcluster.model.NamedCluster;
 import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.core.plugins.StepPluginType;
 import org.pentaho.di.core.variables.Variables;
@@ -48,6 +45,8 @@ import org.pentaho.di.repository.StringObjectId;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.steps.named.cluster.NamedClusterEmbedManager;
+import org.pentaho.hadoop.shim.api.core.JaasConfigServiceCommon;
+import org.pentaho.hadoop.shim.api.core.NamedClusterServiceLocatorCommon;
 import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.metastore.locator.api.MetastoreLocator;
 import org.w3c.dom.Node;
@@ -486,7 +485,7 @@ public class KafkaConsumerInputMetaTest {
     NamedCluster namedCluster = mock( NamedCluster.class );
     when( namedCluster.getKafkaBootstrapServers() ).thenReturn( "server:11111" );
 
-    NamedClusterService namedClusterService = mock( NamedClusterService.class );
+    NamedClusterManager namedClusterService = mock( NamedClusterManager.class );
     when( namedClusterService.getNamedClusterByName( eq( "my_cluster" ), any( IMetaStore.class ) ) )
       .thenReturn( namedCluster );
 
@@ -510,13 +509,13 @@ public class KafkaConsumerInputMetaTest {
 
   @Test
   public void testGetJaasConfig() throws Exception {
-    NamedClusterServiceLocator namedClusterLocator = mock( NamedClusterServiceLocator.class );
-    NamedClusterService namedClusterService = mock( NamedClusterService.class );
-    JaasConfigService jaasConfigService = mock( JaasConfigService.class );
+    NamedClusterServiceLocatorCommon namedClusterLocator = mock( NamedClusterServiceLocatorCommon.class );
+    NamedClusterManager namedClusterService = mock( NamedClusterManager.class );
+    JaasConfigServiceCommon jaasConfigService = mock( JaasConfigServiceCommon.class );
     NamedCluster namedCluster = mock( NamedCluster.class );
     when( metastoreLocator.getMetastore() ).thenReturn( metastore );
     when( namedClusterService.getNamedClusterByName( "kurtsCluster", metastore ) ).thenReturn( namedCluster );
-    when( namedClusterLocator.getService( namedCluster, JaasConfigService.class ) ).thenReturn( jaasConfigService );
+    when( namedClusterLocator.getService( namedCluster, JaasConfigServiceCommon.class ) ).thenReturn( jaasConfigService );
     KafkaConsumerInputMeta inputMeta = new KafkaConsumerInputMeta();
     inputMeta.setNamedClusterServiceLocator( namedClusterLocator );
     inputMeta.setNamedClusterService( namedClusterService );
@@ -537,13 +536,13 @@ public class KafkaConsumerInputMetaTest {
 
   @Test
   public void testGetJaasConfigException() throws Exception {
-    NamedClusterServiceLocator namedClusterLocator = mock( NamedClusterServiceLocator.class );
-    NamedClusterService namedClusterService = mock( NamedClusterService.class );
+    NamedClusterServiceLocatorCommon namedClusterLocator = mock( NamedClusterServiceLocatorCommon.class );
+    NamedClusterManager namedClusterService = mock( NamedClusterManager.class );
     NamedCluster namedCluster = mock( NamedCluster.class );
     when( metastoreLocator.getMetastore() ).thenReturn( metastore );
     when( namedClusterService.getNamedClusterByName( "kurtsCluster", metastore ) ).thenReturn( namedCluster );
-    when( namedClusterLocator.getService( namedCluster, JaasConfigService.class ) )
-      .thenThrow( new ClusterInitializationException( new Exception( "oops" ) ) );
+    when( namedClusterLocator.getService( namedCluster, JaasConfigServiceCommon.class ) )
+      .thenThrow( new Exception( new Exception( "oops" ) ) );
     KafkaConsumerInputMeta inputMeta = new KafkaConsumerInputMeta();
     inputMeta.setNamedClusterServiceLocator( namedClusterLocator );
     inputMeta.setNamedClusterService( namedClusterService );

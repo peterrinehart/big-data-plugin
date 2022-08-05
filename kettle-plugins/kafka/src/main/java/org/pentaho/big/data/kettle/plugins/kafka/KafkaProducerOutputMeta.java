@@ -29,6 +29,7 @@ import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.injection.Injection;
 import org.pentaho.di.core.injection.InjectionSupported;
+import org.pentaho.di.core.namedcluster.NamedClusterManager;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.service.PluginServiceLoader;
 import org.pentaho.di.core.variables.VariableSpace;
@@ -42,13 +43,12 @@ import org.pentaho.di.trans.step.StepDataInterface;
 import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
-import org.pentaho.hadoop.shim.api.cluster.NamedCluster;
-import org.pentaho.hadoop.shim.api.cluster.NamedClusterService;
-import org.pentaho.hadoop.shim.api.cluster.NamedClusterServiceLocator;
-import org.pentaho.hadoop.shim.api.jaas.JaasConfigService;
+import org.pentaho.hadoop.shim.api.core.JaasConfigServiceCommon;
+import org.pentaho.hadoop.shim.api.core.NamedClusterCommon;
+import org.pentaho.hadoop.shim.api.core.NamedClusterServiceLocatorCommon;
 import org.pentaho.metastore.api.IMetaStore;
-import org.pentaho.metaverse.api.analyzer.kettle.annotations.Metaverse;
 import org.pentaho.metastore.locator.api.MetastoreLocator;
+import org.pentaho.metaverse.api.analyzer.kettle.annotations.Metaverse;
 import org.w3c.dom.Node;
 
 import java.util.Collection;
@@ -59,11 +59,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.pentaho.big.data.kettle.plugins.kafka.KafkaProducerOutputMeta.ConnectionType.DIRECT;
 import static org.pentaho.big.data.kettle.plugins.kafka.KafkaLineageConstants.KAFKA_SERVER_METAVERSE;
 import static org.pentaho.big.data.kettle.plugins.kafka.KafkaLineageConstants.KAFKA_TOPIC_METAVERSE;
 import static org.pentaho.big.data.kettle.plugins.kafka.KafkaLineageConstants.KEY;
 import static org.pentaho.big.data.kettle.plugins.kafka.KafkaLineageConstants.MESSAGE;
+import static org.pentaho.big.data.kettle.plugins.kafka.KafkaProducerOutputMeta.ConnectionType.DIRECT;
 import static org.pentaho.dictionary.DictionaryConst.CATEGORY_DATASOURCE;
 import static org.pentaho.dictionary.DictionaryConst.CATEGORY_MESSAGE_QUEUE;
 import static org.pentaho.dictionary.DictionaryConst.LINK_CONTAINS_CONCEPT;
@@ -134,9 +134,9 @@ public class KafkaProducerOutputMeta extends BaseStepMeta implements StepMetaInt
 
   private Map<String, String> config = new LinkedHashMap<>();
 
-  private NamedClusterService namedClusterService;
+  private NamedClusterManager namedClusterService = NamedClusterManager.getInstance();
 
-  private NamedClusterServiceLocator namedClusterServiceLocator;
+  private NamedClusterServiceLocatorCommon namedClusterServiceLocator;
 
   private MetastoreLocator metastoreLocator;
 
@@ -148,6 +148,12 @@ public class KafkaProducerOutputMeta extends BaseStepMeta implements StepMetaInt
       this.metastoreLocator = metastoreLocators.stream().findFirst().get();
     } catch ( Exception e ) {
       getLog().logError( "Error getting MetastoreLocator", e );
+    }
+    try {
+      Collection<NamedClusterServiceLocatorCommon> namedClusterServiceLocatorCommons = PluginServiceLoader.loadServices( NamedClusterServiceLocatorCommon.class );
+      this.namedClusterServiceLocator = namedClusterServiceLocatorCommons.stream().findFirst().get();
+    } catch ( Exception e ) {
+      getLog().logError( "Error getting NamedClusterServiceLocatorCommon", e );
     }
   }
 
@@ -252,7 +258,7 @@ public class KafkaProducerOutputMeta extends BaseStepMeta implements StepMetaInt
       //todo: this needed for spark.  should make metastoreLocator know how to find embedded metastore in spark
       metastore = getParentStepMeta().getParentTransMeta().getEmbeddedMetaStore();
     }
-    Optional<NamedCluster> namedClusterByName = Optional.ofNullable(
+    Optional<NamedClusterCommon> namedClusterByName = Optional.ofNullable(
       namedClusterService.getNamedClusterByName(
         parentStepMeta.getParentTransMeta().environmentSubstitute( clusterName ), metastore ) );
     if ( !namedClusterByName.isPresent() ) {
@@ -262,7 +268,7 @@ public class KafkaProducerOutputMeta extends BaseStepMeta implements StepMetaInt
           getParentStepMeta().getParentTransMeta().getEmbeddedMetaStore() ) );
     }
     return namedClusterByName
-        .map( NamedCluster::getKafkaBootstrapServers ).orElse( "" );
+        .map( NamedClusterCommon::getKafkaBootstrapServers ).orElse( "" );
   }
 
   public String getClientId() {
@@ -332,7 +338,7 @@ public class KafkaProducerOutputMeta extends BaseStepMeta implements StepMetaInt
     return retval.toString();
   }
 
-  public NamedClusterService getNamedClusterService() {
+  public NamedClusterManager getNamedClusterService() {
     return namedClusterService;
   }
 
@@ -365,7 +371,7 @@ public class KafkaProducerOutputMeta extends BaseStepMeta implements StepMetaInt
     return config;
   }
 
-  public void setNamedClusterService( NamedClusterService namedClusterService ) {
+  public void setNamedClusterService( NamedClusterManager namedClusterService ) {
     this.namedClusterService = namedClusterService;
   }
 
@@ -373,20 +379,20 @@ public class KafkaProducerOutputMeta extends BaseStepMeta implements StepMetaInt
     this.metastoreLocator = metastoreLocator;
   }
 
-  public NamedClusterServiceLocator getNamedClusterServiceLocator() {
+  public NamedClusterServiceLocatorCommon getNamedClusterServiceLocator() {
     return namedClusterServiceLocator;
   }
 
   public void setNamedClusterServiceLocator(
-    NamedClusterServiceLocator namedClusterServiceLocator ) {
+    NamedClusterServiceLocatorCommon namedClusterServiceLocator ) {
     this.namedClusterServiceLocator = namedClusterServiceLocator;
   }
 
-  public Optional<JaasConfigService> getJaasConfigService() {
+  public Optional<JaasConfigServiceCommon> getJaasConfigService() {
     try {
       return Optional.ofNullable( namedClusterServiceLocator.getService(
         namedClusterService.getNamedClusterByName( getClusterName(), getMetastoreLocator().getMetastore() ),
-        JaasConfigService.class ) );
+        JaasConfigServiceCommon.class ) );
     } catch ( Exception e ) {
       getLog().logDebug( "problem getting jaas config", e );
       return Optional.empty();

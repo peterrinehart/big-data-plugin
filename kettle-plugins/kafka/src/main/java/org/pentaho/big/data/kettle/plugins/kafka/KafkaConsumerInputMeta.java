@@ -24,12 +24,6 @@ package org.pentaho.big.data.kettle.plugins.kafka;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import org.pentaho.di.core.logging.LogChannel;
-import org.pentaho.di.core.service.PluginServiceLoader;
-import org.pentaho.hadoop.shim.api.cluster.NamedCluster;
-import org.pentaho.hadoop.shim.api.cluster.NamedClusterService;
-import org.pentaho.hadoop.shim.api.cluster.NamedClusterServiceLocator;
-import org.pentaho.hadoop.shim.api.jaas.JaasConfigService;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.ObjectLocationSpecificationMethod;
 import org.pentaho.di.core.annotations.Step;
@@ -40,10 +34,12 @@ import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.injection.Injection;
 import org.pentaho.di.core.injection.InjectionDeep;
 import org.pentaho.di.core.injection.InjectionSupported;
+import org.pentaho.di.core.namedcluster.NamedClusterManager;
 import org.pentaho.di.core.row.RowMeta;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.core.row.value.ValueMetaFactory;
+import org.pentaho.di.core.service.PluginServiceLoader;
 import org.pentaho.di.core.util.StringUtil;
 import org.pentaho.di.core.util.Utils;
 import org.pentaho.di.core.variables.VariableSpace;
@@ -58,9 +54,12 @@ import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 import org.pentaho.di.trans.streaming.common.BaseStreamStepMeta;
+import org.pentaho.hadoop.shim.api.core.JaasConfigServiceCommon;
+import org.pentaho.hadoop.shim.api.core.NamedClusterCommon;
+import org.pentaho.hadoop.shim.api.core.NamedClusterServiceLocatorCommon;
 import org.pentaho.metastore.api.IMetaStore;
-import org.pentaho.metaverse.api.analyzer.kettle.annotations.Metaverse;
 import org.pentaho.metastore.locator.api.MetastoreLocator;
+import org.pentaho.metaverse.api.analyzer.kettle.annotations.Metaverse;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -174,11 +173,11 @@ public class KafkaConsumerInputMeta extends BaseStreamStepMeta implements StepMe
 
   private KafkaFactory kafkaFactory;
 
-  private NamedClusterService namedClusterService;
+  private NamedClusterManager namedClusterService;
 
   private MetastoreLocator metastoreLocator;
 
-  private NamedClusterServiceLocator namedClusterServiceLocator;
+  private NamedClusterServiceLocatorCommon namedClusterServiceLocator;
 
   public KafkaConsumerInputMeta() {
     super(); // allocate BaseStepMeta
@@ -188,6 +187,12 @@ public class KafkaConsumerInputMeta extends BaseStreamStepMeta implements StepMe
       this.metastoreLocator = metastoreLocators.stream().findFirst().get();
     } catch ( Exception e ) {
       getLog().logError( "Error getting MetastoreLocator", e );
+    }
+    try {
+      Collection<NamedClusterServiceLocatorCommon> namedClusterServiceLocatorCommons = PluginServiceLoader.loadServices( NamedClusterServiceLocatorCommon.class );
+      this.namedClusterServiceLocator = namedClusterServiceLocatorCommons.stream().findFirst().get();
+    } catch ( Exception e ) {
+      getLog().logError( "Error getting NamedClusterServiceLocatorCommon", e );
     }
 
     kafkaFactory = KafkaFactory.defaultFactory();
@@ -433,7 +438,7 @@ public class KafkaConsumerInputMeta extends BaseStreamStepMeta implements StepMe
     }
     return Optional
         .ofNullable( namedClusterService.getNamedClusterByName( parentStepMeta.getParentTransMeta().environmentSubstitute( clusterName ), metastoreLocator.getMetastore() ) )
-        .map( NamedCluster::getKafkaBootstrapServers ).orElse( "" );
+        .map( NamedClusterCommon::getKafkaBootstrapServers ).orElse( "" );
   }
 
   @Metaverse.Node ( name = KAFKA_TOPIC_METAVERSE, type = KAFKA_TOPIC_METAVERSE, link = LINK_READBY )
@@ -562,7 +567,7 @@ public class KafkaConsumerInputMeta extends BaseStreamStepMeta implements StepMe
     this.kafkaFactory = kafkaFactory;
   }
 
-  public NamedClusterService getNamedClusterService() {
+  public NamedClusterManager getNamedClusterService() {
     return namedClusterService;
   }
 
@@ -578,7 +583,7 @@ public class KafkaConsumerInputMeta extends BaseStreamStepMeta implements StepMe
     return metastoreLocator;
   }
 
-  public void setNamedClusterService( NamedClusterService namedClusterService ) {
+  public void setNamedClusterService( NamedClusterManager namedClusterService ) {
     this.namedClusterService = namedClusterService;
   }
 
@@ -590,25 +595,25 @@ public class KafkaConsumerInputMeta extends BaseStreamStepMeta implements StepMe
     return autoCommit;
   }
 
-  public Optional<JaasConfigService> getJaasConfigService() {
+  public Optional<JaasConfigServiceCommon> getJaasConfigService() {
     if ( DIRECT.equals( getConnectionType() ) ) {
       return Optional.empty();
     }
     try {
       return Optional.ofNullable( namedClusterServiceLocator.getService(
         namedClusterService.getNamedClusterByName( parentStepMeta.getParentTransMeta().environmentSubstitute( getClusterName() ), getMetastoreLocator().getMetastore() ),
-        JaasConfigService.class ) );
+        JaasConfigServiceCommon.class ) );
     } catch ( Exception e ) {
       getLog().logDebug( "problem getting jaas config", e );
       return Optional.empty();
     }
   }
 
-  public NamedClusterServiceLocator getNamedClusterServiceLocator() {
+  public NamedClusterServiceLocatorCommon getNamedClusterServiceLocator() {
     return namedClusterServiceLocator;
   }
 
-  public void setNamedClusterServiceLocator( NamedClusterServiceLocator namedClusterServiceLocator ) {
+  public void setNamedClusterServiceLocator( NamedClusterServiceLocatorCommon namedClusterServiceLocator ) {
     this.namedClusterServiceLocator = namedClusterServiceLocator;
   }
 

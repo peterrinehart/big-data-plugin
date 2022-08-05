@@ -39,15 +39,14 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.verification.VerificationMode;
 import org.pentaho.di.core.Const;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.hadoop.shim.api.cluster.NamedClusterService;
-import org.pentaho.hadoop.shim.api.cluster.NamedClusterServiceLocator;
 import org.pentaho.di.core.KettleClientEnvironment;
 import org.pentaho.di.core.Props;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.logging.KettleLogStore;
 import org.pentaho.di.core.logging.LogChannelInterface;
 import org.pentaho.di.core.logging.LogChannelInterfaceFactory;
+import org.pentaho.di.core.logging.LogLevel;
+import org.pentaho.di.core.namedcluster.NamedClusterManager;
 import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.core.plugins.StepPluginType;
 import org.pentaho.di.core.row.RowMetaInterface;
@@ -60,6 +59,7 @@ import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepStatus;
 import org.pentaho.di.trans.steps.abort.AbortMeta;
+import org.pentaho.hadoop.shim.api.core.NamedClusterServiceLocatorCommon;
 import org.pentaho.metastore.locator.api.MetastoreLocator;
 
 import java.util.ArrayList;
@@ -137,8 +137,8 @@ public class KafkaConsumerInputTest {
     when( logChannelFactory.create( any(), any() ) ).thenReturn( logChannel );
     when( logChannelFactory.create( any() ) ).thenReturn( logChannel );
 
-    NamedClusterService namedClusterService = mock( NamedClusterService.class );
-    NamedClusterServiceLocator namedClusterServiceLocator = mock( NamedClusterServiceLocator.class );
+    NamedClusterManager namedClusterService = mock( NamedClusterManager.class );
+    NamedClusterServiceLocatorCommon namedClusterServiceLocator = mock( NamedClusterServiceLocatorCommon.class );
     MetastoreLocator metastoreLocator = mock( MetastoreLocator.class );
 
     meta = new KafkaConsumerInputMeta();

@@ -2,7 +2,7 @@
  *
  * Pentaho Big Data
  *
- * Copyright (C) 2002-2020 by Hitachi Vantara : http://www.pentaho.com
+ * Copyright (C) 2002-2022 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -30,6 +30,7 @@ import org.pentaho.di.core.namedcluster.model.NamedCluster;
 import org.pentaho.di.core.util.StringUtil;
 import org.pentaho.di.core.util.Utils;
 import org.pentaho.di.core.variables.VariableSpace;
+import org.pentaho.hadoop.shim.api.core.NamedClusterCommon;
 import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.metastore.api.exceptions.MetaStoreException;
 import org.pentaho.metastore.persist.MetaStoreFactory;
@@ -330,7 +331,7 @@ public class NamedClusterManager {
     return outgoingURL;
   }
 
-  public NamedCluster getNamedClusterByName( String namedCluster, IMetaStore metastore ) {
+  public NamedClusterCommon getNamedClusterByName( String namedCluster, IMetaStore metastore ) {
     if ( metastore == null ) {
       return null;
     }
