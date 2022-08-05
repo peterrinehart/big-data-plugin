@@ -173,7 +173,7 @@ public class KafkaConsumerInputMeta extends BaseStreamStepMeta implements StepMe
 
   private KafkaFactory kafkaFactory;
 
-  private NamedClusterManager namedClusterService;
+  private NamedClusterManager namedClusterService = NamedClusterManager.getInstance();
 
   private MetastoreLocator metastoreLocator;
 
